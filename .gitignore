@@ -1,33 +1,40 @@
-HELP.md
+# === Java / Maven ===
 target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# === Maven Wrapper ===
 .mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# === IDE ===
+.idea/
 *.iml
 *.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+*.iws
 .vscode/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Spring Boot ===
+application.properties
+application.yml
+
+# === Logs ===
+logs/
+*.log
+
+# === Testy / raporty ===
+/build/
+/out/
+
+# === Lombok ===
+lombok.config
+
+# === Docker (jeśli dodasz później) ===
+.env
+docker-compose.override.yml
