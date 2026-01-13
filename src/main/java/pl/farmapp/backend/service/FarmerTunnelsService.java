@@ -1,12 +1,14 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FarmerTunnelsDto;
 import pl.farmapp.backend.entity.FarmerTunnels;
 import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.FarmerTunnelsRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FarmerTunnelsService {
@@ -54,5 +56,15 @@ public class FarmerTunnelsService {
 
     public void delete(Integer id) {
         farmerTunnelsRepository.deleteById(id);
+    }
+
+    public List<FarmerTunnelsDto> getTunnelsByFarmer(Integer farmerId) {
+        return farmerTunnelsRepository.findByFarmerId(farmerId)
+                .stream()
+                .map(ft -> new FarmerTunnelsDto(
+                        ft.getYear(),
+                        ft.getTunnelsCount()
+                ))
+                .collect(Collectors.toList());
     }
 }

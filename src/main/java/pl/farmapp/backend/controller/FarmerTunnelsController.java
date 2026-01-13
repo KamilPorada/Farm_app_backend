@@ -2,6 +2,7 @@ package pl.farmapp.backend.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.farmapp.backend.dto.FarmerTunnelsDto;
 import pl.farmapp.backend.entity.FarmerTunnels;
 import pl.farmapp.backend.service.FarmerTunnelsService;
 
@@ -48,4 +49,22 @@ public class FarmerTunnelsController {
         farmerTunnelsService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @RestController
+    @RequestMapping("/api/farmers")
+    public class FarmerTunnelsByFarmerController {
+
+        private final FarmerTunnelsService farmerTunnelsService;
+
+        public FarmerTunnelsByFarmerController(FarmerTunnelsService farmerTunnelsService) {
+            this.farmerTunnelsService = farmerTunnelsService;
+        }
+
+        @GetMapping("/{farmerId}/tunnels")
+        public List<FarmerTunnelsDto> getTunnelsByFarmer(
+                @PathVariable Integer farmerId) {
+            return farmerTunnelsService.getTunnelsByFarmer(farmerId);
+        }
+    }
+
 }
