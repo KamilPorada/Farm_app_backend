@@ -1,0 +1,68 @@
+package pl.farmapp.backend.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "variety_season")
+public class VarietySeason {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "farmer_id", nullable = false)
+    private Farmer farmer;
+
+    private String name;
+
+    private BigDecimal tunnelCount;
+
+    private Integer seasonYear;
+
+    public VarietySeason() {
+    }
+
+    // GETTERY / SETTERY
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Farmer getFarmer() {
+        return farmer;
+    }
+
+    public void setFarmer(Farmer farmer) {
+        this.farmer = farmer;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getTunnelCount() {
+        return tunnelCount;
+    }
+
+    public void setTunnelCount(BigDecimal tunnelCount) {
+        this.tunnelCount = tunnelCount;
+    }
+
+    public Integer getSeasonYear() {
+        return seasonYear;
+    }
+
+    public void setSeasonYear(Integer seasonYear) {
+        this.seasonYear = seasonYear;
+    }
+}
