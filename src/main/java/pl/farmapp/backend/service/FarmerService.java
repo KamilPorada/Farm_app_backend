@@ -1,10 +1,11 @@
 package pl.farmapp.backend.service;
 
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FarmerProfileDto;
 import pl.farmapp.backend.entity.Farmer;
 import pl.farmapp.backend.repository.FarmerRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,28 +17,39 @@ public class FarmerService {
         this.farmerRepository = farmerRepository;
     }
 
-    public List<Farmer> getAllFarmers() {
-        return farmerRepository.findAll();
+    /* ===================== */
+    /* AUTH / ME FLOW        */
+    /* ===================== */
+
+    public Optional<Farmer> getMyProfile(Jwt jwt) {
+        String externalId = jwt.getSubject();
+        return farmerRepository.findByExternalId(externalId);
     }
 
-    public Optional<Farmer> getFarmerById(Integer id) {
-        return farmerRepository.findById(id);
-    }
+    public Farmer createMyProfile(Jwt jwt, FarmerProfileDto dto) {
+        String externalId = jwt.getSubject();
 
-    public Farmer createFarmer(Farmer farmer) {
+        if (farmerRepository.existsByExternalId(externalId)) {
+            throw new IllegalStateException("Farmer already exists");
+        }
+
+        Farmer farmer = new Farmer();
+        farmer.setExternalId(externalId);
+        farmer.setName(dto.name());
+        farmer.setSurname(dto.surname());
+        farmer.setEmail(dto.email());
+
         return farmerRepository.save(farmer);
     }
 
-    public Optional<Farmer> updateFarmer(Integer id, Farmer updatedFarmer) {
-        return farmerRepository.findById(id).map(farmer -> {
-            farmer.setName(updatedFarmer.getName());
-            farmer.setSurname(updatedFarmer.getSurname());
-            farmer.setEmail(updatedFarmer.getEmail());
-            return farmerRepository.save(farmer);
-        });
-    }
+    public Farmer updateMyProfile(Jwt jwt, FarmerProfileDto dto) {
+        Farmer farmer = farmerRepository.findByExternalId(jwt.getSubject())
+                .orElseThrow(() -> new IllegalStateException("Farmer not found"));
 
-    public void deleteFarmer(Integer id) {
-        farmerRepository.deleteById(id);
+        farmer.setName(dto.name());
+        farmer.setSurname(dto.surname());
+        farmer.setEmail(dto.email());
+
+        return farmerRepository.save(farmer);
     }
 }

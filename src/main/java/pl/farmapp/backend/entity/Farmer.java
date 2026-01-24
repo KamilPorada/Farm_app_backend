@@ -1,10 +1,6 @@
 package pl.farmapp.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "farmer")
@@ -13,6 +9,8 @@ public class Farmer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(nullable = false, unique = true)
+    private String externalId; // sub z Kinde
 
     private String name;
 
@@ -32,6 +30,14 @@ public class Farmer {
     }
 
     // Gettery i settery
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
 
     public Integer getId() {
         return id;

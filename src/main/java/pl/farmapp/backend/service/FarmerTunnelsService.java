@@ -1,7 +1,9 @@
 package pl.farmapp.backend.service;
 
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import pl.farmapp.backend.dto.FarmerTunnelsDto;
+import pl.farmapp.backend.entity.Farmer;
 import pl.farmapp.backend.entity.FarmerTunnels;
 import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.FarmerTunnelsRepository;
@@ -67,4 +69,5 @@ public class FarmerTunnelsService {
                 ))
                 .collect(Collectors.toList());
     }
+
 }
