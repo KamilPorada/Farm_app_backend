@@ -10,7 +10,7 @@ public class Farmer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(nullable = false, unique = true)
-    private String externalId; // sub z Kinde
+    private String externalId;
 
     private String name;
 
