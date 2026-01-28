@@ -38,6 +38,7 @@ public class MeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+
     // 3️⃣ PUT – aktualizacja profilu
     @PutMapping
     public ResponseEntity<Farmer> updateMe(
