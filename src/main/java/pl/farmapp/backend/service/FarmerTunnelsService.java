@@ -1,73 +1,89 @@
 package pl.farmapp.backend.service;
 
-import org.springframework.security.oauth2.jwt.Jwt;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.farmapp.backend.dto.FarmerTunnelsDto;
-import pl.farmapp.backend.entity.Farmer;
+import pl.farmapp.backend.dto.FarmerTunnelsSyncRequest;
 import pl.farmapp.backend.entity.FarmerTunnels;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.FarmerTunnelsRepository;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class FarmerTunnelsService {
 
-    private final FarmerTunnelsRepository farmerTunnelsRepository;
-    private final FarmerRepository farmerRepository;
+    private final FarmerTunnelsRepository repository;
 
-    public FarmerTunnelsService(FarmerTunnelsRepository farmerTunnelsRepository,
-                                FarmerRepository farmerRepository) {
-        this.farmerTunnelsRepository = farmerTunnelsRepository;
-        this.farmerRepository = farmerRepository;
+    public FarmerTunnelsService(FarmerTunnelsRepository repository) {
+        this.repository = repository;
     }
 
-    public List<FarmerTunnels> getAll() {
-        return farmerTunnelsRepository.findAll();
-    }
+    /* =========================
+       SYNC – JEDNO ŹRÓDŁO PRAWDY
+       ========================= */
+    public void syncFarmerTunnels(FarmerTunnelsSyncRequest request) {
 
-    public Optional<FarmerTunnels> getById(Integer id) {
-        return farmerTunnelsRepository.findById(id);
-    }
+        Integer farmerId = request.getFarmerId();
 
-    public Optional<FarmerTunnels> create(FarmerTunnels farmerTunnels) {
-        // Sprawdź czy farmer istnieje
-        if (farmerTunnels.getFarmer() == null
-                || farmerTunnels.getFarmer().getId() == null
-                || !farmerRepository.existsById(farmerTunnels.getFarmer().getId())) {
-            return Optional.empty();
-        }
-        return Optional.of(farmerTunnelsRepository.save(farmerTunnels));
-    }
+        List<FarmerTunnels> existing =
+                repository.findByFarmerId(farmerId);
 
-    public Optional<FarmerTunnels> update(Integer id, FarmerTunnels updated) {
-        return farmerTunnelsRepository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
+        Map<Integer, FarmerTunnels> existingByYear =
+                existing.stream()
+                        .collect(Collectors.toMap(
+                                FarmerTunnels::getYear,
+                                Function.identity()
+                        ));
+
+        Set<Integer> yearsFromFrontend = new HashSet<>();
+
+        /* ===== ADD + UPDATE ===== */
+        for (FarmerTunnelsDto dto : request.getTunnels()) {
+
+            yearsFromFrontend.add(dto.getYear());
+
+            FarmerTunnels entity = existingByYear.get(dto.getYear());
+
+            if (entity == null) {
+                // ➕ CREATE
+                FarmerTunnels newEntity = new FarmerTunnels();
+                newEntity.setFarmerId(farmerId);
+                newEntity.setYear(dto.getYear());
+                newEntity.setTunnelsCount(dto.getCount());
+                repository.save(newEntity);
+            } else {
+                // 🔁 UPDATE (tylko jeśli zmiana)
+                if (entity.getTunnelsCount().compareTo(dto.getCount()) != 0) {
+                    entity.setTunnelsCount(dto.getCount());
+                    repository.save(entity);
                 }
-                existing.setFarmer(updated.getFarmer());
             }
-            existing.setYear(updated.getYear());
-            existing.setTunnelsCount(updated.getTunnelsCount());
-            return Optional.of(farmerTunnelsRepository.save(existing));
-        });
+        }
+
+        /* ===== DELETE ===== */
+        for (FarmerTunnels entity : existing) {
+            if (!yearsFromFrontend.contains(entity.getYear())) {
+                repository.delete(entity);
+            }
+        }
     }
 
-    public void delete(Integer id) {
-        farmerTunnelsRepository.deleteById(id);
-    }
-
-    public List<FarmerTunnelsDto> getTunnelsByFarmer(Integer farmerId) {
-        return farmerTunnelsRepository.findByFarmerId(farmerId)
+    /* ===== GET – do wczytania na frontend ===== */
+    public List<FarmerTunnelsDto> getFarmerTunnels(Integer farmerId) {
+        return repository.findByFarmerId(farmerId)
                 .stream()
-                .map(ft -> new FarmerTunnelsDto(
-                        ft.getYear(),
-                        ft.getTunnelsCount()
-                ))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(FarmerTunnels::getYear))
+                .map(entity -> {
+                    FarmerTunnelsDto dto = new FarmerTunnelsDto();
+                    dto.setYear(entity.getYear());
+                    dto.setCount(entity.getTunnelsCount());
+                    return dto;
+                })
+                .toList();
     }
-
 }

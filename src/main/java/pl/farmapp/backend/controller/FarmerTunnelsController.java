@@ -1,70 +1,40 @@
 package pl.farmapp.backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.farmapp.backend.dto.FarmerTunnelsDto;
-import pl.farmapp.backend.entity.FarmerTunnels;
+import pl.farmapp.backend.dto.FarmerTunnelsSyncRequest;
 import pl.farmapp.backend.service.FarmerTunnelsService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/farmer-tunnels")
+@RequiredArgsConstructor
 public class FarmerTunnelsController {
 
-    private final FarmerTunnelsService farmerTunnelsService;
+    private final FarmerTunnelsService service;
 
-    public FarmerTunnelsController(FarmerTunnelsService farmerTunnelsService) {
-        this.farmerTunnelsService = farmerTunnelsService;
+    public FarmerTunnelsController(FarmerTunnelsService service) {
+        this.service = service;
     }
 
-    @GetMapping
-    public List<FarmerTunnels> getAll() {
-        return farmerTunnelsService.getAll();
+    /* ===== GET ===== */
+    @GetMapping("/{farmerId}")
+    public ResponseEntity<List<FarmerTunnelsDto>> getFarmerTunnels(
+            @PathVariable Integer farmerId
+    ) {
+        return ResponseEntity.ok(service.getFarmerTunnels(farmerId));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FarmerTunnels> getById(@PathVariable Integer id) {
-        return farmerTunnelsService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    /* ===== SYNC (ADD / UPDATE / DELETE) ===== */
+    @PostMapping("/sync")
+    public ResponseEntity<Void> syncFarmerTunnels(
+            @RequestBody FarmerTunnelsSyncRequest request
+    ) {
+        System.out.println("SYNC HIT: " + request.getFarmerId());
+        service.syncFarmerTunnels(request);
+        return ResponseEntity.ok().build();
     }
-
-    @PostMapping
-    public ResponseEntity<FarmerTunnels> create(@RequestBody FarmerTunnels farmerTunnels) {
-        return farmerTunnelsService.create(farmerTunnels)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<FarmerTunnels> update(@PathVariable Integer id, @RequestBody FarmerTunnels farmerTunnels) {
-        return farmerTunnelsService.update(id, farmerTunnels)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        farmerTunnelsService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @RestController
-    @RequestMapping("/api/farmers")
-    public class FarmerTunnelsByFarmerController {
-
-        private final FarmerTunnelsService farmerTunnelsService;
-
-        public FarmerTunnelsByFarmerController(FarmerTunnelsService farmerTunnelsService) {
-            this.farmerTunnelsService = farmerTunnelsService;
-        }
-
-        @GetMapping("/{farmerId}/tunnels")
-        public List<FarmerTunnelsDto> getTunnelsByFarmer(
-                @PathVariable Integer farmerId) {
-            return farmerTunnelsService.getTunnelsByFarmer(farmerId);
-        }
-    }
-
 }

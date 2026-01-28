@@ -5,18 +5,21 @@ import java.math.BigDecimal;
 public class FarmerTunnelsDto {
 
     private Integer year;
-    private BigDecimal tunnelsCount;
-
-    public FarmerTunnelsDto(Integer year, BigDecimal tunnelsCount) {
-        this.year = year;
-        this.tunnelsCount = tunnelsCount;
-    }
+    private BigDecimal count;
 
     public Integer getYear() {
         return year;
     }
 
-    public BigDecimal getTunnelsCount() {
-        return tunnelsCount;
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public BigDecimal getCount() {
+        return count;
+    }
+
+    public void setCount(BigDecimal count) {
+        this.count = count;
     }
 }

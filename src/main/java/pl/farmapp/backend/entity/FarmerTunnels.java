@@ -1,37 +1,28 @@
 package pl.farmapp.backend.entity;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "farmer_tunnels")
+@Table(
+        name = "farmer_tunnels",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"farmer_id", "year"})
+)
 public class FarmerTunnels {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // Klucz obcy do Farmer
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    @Column(name = "farmer_id", nullable = false)
+    private Integer farmerId;
 
+    @Column(nullable = false)
     private Integer year;
 
-    @Column(name = "tunnels_count", precision = 10, scale = 2)
+    @Column(name = "tunnels_count", nullable = false, precision = 5, scale = 2)
     private BigDecimal tunnelsCount;
-
-    // Konstruktor bezparametrowy
-    public FarmerTunnels() {
-    }
-
-    public FarmerTunnels(Farmer farmer, Integer year, BigDecimal tunnelsCount) {
-        this.farmer = farmer;
-        this.year = year;
-        this.tunnelsCount = tunnelsCount;
-    }
-
-    // Gettery i settery
 
     public Integer getId() {
         return id;
@@ -41,12 +32,12 @@ public class FarmerTunnels {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
     public Integer getYear() {

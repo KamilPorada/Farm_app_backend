@@ -8,6 +8,8 @@ import java.util.List;
 
 @Repository
 public interface FarmerTunnelsRepository extends JpaRepository<FarmerTunnels, Integer> {
+
     List<FarmerTunnels> findByFarmerId(Integer farmerId);
 
+    void deleteByFarmerId(Integer farmerId);
 }
