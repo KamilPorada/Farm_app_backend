@@ -1,59 +1,49 @@
 package pl.farmapp.backend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.farmapp.backend.dto.PointOfSaleDto;
 import pl.farmapp.backend.entity.PointOfSale;
 import pl.farmapp.backend.service.PointOfSaleService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/point-of-sale")
+@RequestMapping("/api/points-of-sale")
 public class PointOfSaleController {
 
-    private final PointOfSaleService pointOfSaleService;
+    private final PointOfSaleService service;
 
-    public PointOfSaleController(PointOfSaleService pointOfSaleService) {
-        this.pointOfSaleService = pointOfSaleService;
+    public PointOfSaleController(PointOfSaleService service) {
+        this.service = service;
     }
 
-    @GetMapping
-    public List<PointOfSale> getAll() {
-        return pointOfSaleService.getAll();
+    @GetMapping("/farmer/{farmerId}")
+    public List<PointOfSale> getByFarmer(@PathVariable Integer farmerId) {
+        return service.getByFarmer(farmerId);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PointOfSale> getById(@PathVariable Integer id) {
-        return pointOfSaleService.getById(id)
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody PointOfSaleDto dto) {
+        return service.create(dto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable Integer id,
+            @Valid @RequestBody PointOfSale pos
+    ) {
+        return service.update(id, pos)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<PointOfSale> create(@RequestBody PointOfSale pos) {
-        return pointOfSaleService.create(pos)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<PointOfSale> update(
-            @PathVariable Integer id,
-            @RequestBody PointOfSale pos) {
-        return pointOfSaleService.update(id, pos)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        pointOfSaleService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // endpoint po farmerze
-    @GetMapping("/farmer/{farmerId}")
-    public List<PointOfSale> getByFarmer(@PathVariable Integer farmerId) {
-        return pointOfSaleService.getByFarmer(farmerId);
+    public void delete(@PathVariable Integer id) {
+        service.delete(id);
     }
 }

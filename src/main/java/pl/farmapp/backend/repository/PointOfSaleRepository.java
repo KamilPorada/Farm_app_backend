@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface PointOfSaleRepository extends JpaRepository<PointOfSale, Integer> {
 
-    List<PointOfSale> findByFarmerId(Integer farmerId);
+    List<PointOfSale> findByFarmer_Id(Integer farmerId);
 }
+

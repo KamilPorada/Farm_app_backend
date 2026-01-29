@@ -1,53 +1,34 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "point_of_sale")
-public class PointOfSale {
+public class PointOfSaleDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    private Integer farmerId;
 
     @NotBlank
-    @Column(nullable = false)
     private String name;
 
     @NotBlank
-    @Column(nullable = false)
     private String address;
 
     @NotBlank
-    @Column(nullable = false)
     private String type;
 
     @NotBlank
     @Email
-    @Column(nullable = false, length = 255)
     private String email;
 
     @NotBlank
-    @Column(nullable = false, length = 30)
     private String phone;
 
-    @Column(precision = 10, scale = 7)
     private BigDecimal latitude;
-
-    @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
-
-    public PointOfSale() {
-    }
-
 
     public Integer getId() {
         return id;
@@ -57,12 +38,12 @@ public class PointOfSale {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
     public String getName() {
@@ -89,22 +70,6 @@ public class PointOfSale {
         this.type = type;
     }
 
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -119,5 +84,21 @@ public class PointOfSale {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(BigDecimal latitude) {
+        this.latitude = latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(BigDecimal longitude) {
+        this.longitude = longitude;
     }
 }
