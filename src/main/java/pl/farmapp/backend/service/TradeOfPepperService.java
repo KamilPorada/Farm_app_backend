@@ -1,91 +1,98 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.TradeOfPepperCreateDto;
+import pl.farmapp.backend.entity.Farmer;
+import pl.farmapp.backend.entity.PointOfSale;
 import pl.farmapp.backend.entity.TradeOfPepper;
 import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.PointOfSaleRepository;
 import pl.farmapp.backend.repository.TradeOfPepperRepository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TradeOfPepperService {
 
-    private final TradeOfPepperRepository tradeRepository;
-    private final FarmerRepository farmerRepository;
-    private final PointOfSaleRepository pointOfSaleRepository;
+    private final TradeOfPepperRepository tradeRepo;
+    private final FarmerRepository farmerRepo;
+    private final PointOfSaleRepository posRepo;
 
-    public TradeOfPepperService(TradeOfPepperRepository tradeRepository,
-                        FarmerRepository farmerRepository,
-                        PointOfSaleRepository pointOfSaleRepository) {
-        this.tradeRepository = tradeRepository;
-        this.farmerRepository = farmerRepository;
-        this.pointOfSaleRepository = pointOfSaleRepository;
+    public TradeOfPepperService(
+            TradeOfPepperRepository tradeRepo,
+            FarmerRepository farmerRepo,
+            PointOfSaleRepository posRepo) {
+        this.tradeRepo = tradeRepo;
+        this.farmerRepo = farmerRepo;
+        this.posRepo = posRepo;
     }
 
     public List<TradeOfPepper> getAll() {
-        return tradeRepository.findAll();
+        return tradeRepo.findAll();
     }
 
     public Optional<TradeOfPepper> getById(Integer id) {
-        return tradeRepository.findById(id);
+        return tradeRepo.findById(id);
     }
 
-    public Optional<TradeOfPepper> create(TradeOfPepper trade) {
-
-        if (trade.getFarmer() == null ||
-                trade.getFarmer().getId() == null ||
-                !farmerRepository.existsById(trade.getFarmer().getId())) {
-            return Optional.empty();
-        }
-
-        if (trade.getPointOfSale() == null ||
-                trade.getPointOfSale().getId() == null ||
-                !pointOfSaleRepository.existsById(trade.getPointOfSale().getId())) {
-            return Optional.empty();
-        }
-
-        return Optional.of(tradeRepository.save(trade));
+    public List<TradeOfPepper> getByFarmer(Integer farmerId) {
+        return tradeRepo.findByFarmerId(farmerId);
     }
 
-    public Optional<TradeOfPepper> update(Integer id, TradeOfPepper updated) {
-        return tradeRepository.findById(id).flatMap(existing -> {
+    public List<TradeOfPepper> getByFarmerAndYear(Integer farmerId, int year) {
+        LocalDate from = LocalDate.of(year, 1, 1);
+        LocalDate to = LocalDate.of(year, 12, 31);
+        return tradeRepo.findByFarmerIdAndTradeDateBetween(farmerId, from, to);
+    }
 
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
+    public Optional<TradeOfPepper> create(TradeOfPepperCreateDto dto) {
 
-            if (updated.getPointOfSale() != null && updated.getPointOfSale().getId() != null) {
-                if (!pointOfSaleRepository.existsById(updated.getPointOfSale().getId())) {
-                    return Optional.empty();
-                }
-                existing.setPointOfSale(updated.getPointOfSale());
-            }
+        Farmer farmer = farmerRepo.findById(dto.farmerId).orElse(null);
+        PointOfSale pos = posRepo.findById(dto.pointOfSaleId).orElse(null);
 
-            existing.setTradeDate(updated.getTradeDate());
-            existing.setPepperClass(updated.getPepperClass());
-            existing.setPepperColor(updated.getPepperColor());
-            existing.setTradePrice(updated.getTradePrice());
-            existing.setTradeWeight(updated.getTradeWeight());
-            existing.setVatRate(updated.getVatRate());
+        if (farmer == null || pos == null) return Optional.empty();
+        if (dto.tradePrice.compareTo(BigDecimal.ZERO) <= 0) return Optional.empty();
+        if (dto.tradeWeight.compareTo(BigDecimal.ZERO) <= 0) return Optional.empty();
+        if (dto.vatRate < 0 || dto.vatRate > 100) return Optional.empty();
 
-            return Optional.of(tradeRepository.save(existing));
+        TradeOfPepper e = new TradeOfPepper();
+        e.setFarmer(farmer);
+        e.setPointOfSale(pos);
+        e.setTradeDate(dto.tradeDate);
+        e.setPepperClass(dto.pepperClass);
+        e.setPepperColor(dto.pepperColor);
+        e.setTradePrice(dto.tradePrice);
+        e.setTradeWeight(dto.tradeWeight);
+        e.setVatRate(dto.vatRate);
+
+        return Optional.of(tradeRepo.save(e));
+    }
+
+    public Optional<TradeOfPepper> update(Integer id, TradeOfPepperCreateDto dto) {
+        return tradeRepo.findById(id).flatMap(existing -> {
+
+            Farmer farmer = farmerRepo.findById(dto.farmerId).orElse(null);
+            PointOfSale pos = posRepo.findById(dto.pointOfSaleId).orElse(null);
+
+            if (farmer == null || pos == null) return Optional.empty();
+
+            existing.setFarmer(farmer);
+            existing.setPointOfSale(pos);
+            existing.setTradeDate(dto.tradeDate);
+            existing.setPepperClass(dto.pepperClass);
+            existing.setPepperColor(dto.pepperColor);
+            existing.setTradePrice(dto.tradePrice);
+            existing.setTradeWeight(dto.tradeWeight);
+            existing.setVatRate(dto.vatRate);
+
+            return Optional.of(tradeRepo.save(existing));
         });
     }
 
     public void delete(Integer id) {
-        tradeRepository.deleteById(id);
-    }
-
-    public List<TradeOfPepper> getByFarmer(Integer farmerId) {
-        return tradeRepository.findByFarmerId(farmerId);
-    }
-
-    public List<TradeOfPepper> getByPointOfSale(Integer posId) {
-        return tradeRepository.findByPointOfSaleId(posId);
+        tradeRepo.deleteById(id);
     }
 }

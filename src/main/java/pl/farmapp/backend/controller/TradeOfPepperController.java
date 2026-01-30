@@ -2,7 +2,9 @@ package pl.farmapp.backend.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.TradeOfPepper;
+import pl.farmapp.backend.dto.TradeOfPepperCreateDto;
+import pl.farmapp.backend.dto.TradeOfPepperDto;
+import pl.farmapp.backend.mapper.TradeOfPepperMapper;
 import pl.farmapp.backend.service.TradeOfPepperService;
 
 import java.util.List;
@@ -11,53 +13,55 @@ import java.util.List;
 @RequestMapping("/api/trades-of-pepper")
 public class TradeOfPepperController {
 
-    private final TradeOfPepperService tradeService;
+    private final TradeOfPepperService service;
 
-    public TradeOfPepperController(TradeOfPepperService tradeService) {
-        this.tradeService = tradeService;
+    public TradeOfPepperController(TradeOfPepperService service) {
+        this.service = service;
     }
 
-    @GetMapping
-    public List<TradeOfPepper> getAll() {
-        return tradeService.getAll();
+    @GetMapping("/farmer/{farmerId}")
+    public List<TradeOfPepperDto> getByFarmer(@PathVariable Integer farmerId) {
+        return service.getByFarmer(farmerId)
+                .stream()
+                .map(TradeOfPepperMapper::toDto)
+                .toList();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TradeOfPepper> getById(@PathVariable Integer id) {
-        return tradeService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/farmer/{farmerId}/year/{year}")
+    public List<TradeOfPepperDto> getByFarmerAndYear(
+            @PathVariable Integer farmerId,
+            @PathVariable int year) {
+
+        return service.getByFarmerAndYear(farmerId, year)
+                .stream()
+                .map(TradeOfPepperMapper::toDto)
+                .toList();
     }
 
     @PostMapping
-    public ResponseEntity<TradeOfPepper> create(@RequestBody TradeOfPepper trade) {
-        return tradeService.create(trade)
+    public ResponseEntity<TradeOfPepperDto> create(
+            @RequestBody TradeOfPepperCreateDto dto) {
+
+        return service.create(dto)
+                .map(TradeOfPepperMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TradeOfPepper> update(
+    public ResponseEntity<TradeOfPepperDto> update(
             @PathVariable Integer id,
-            @RequestBody TradeOfPepper trade) {
-        return tradeService.update(id, trade)
+            @RequestBody TradeOfPepperCreateDto dto) {
+
+        return service.update(id, dto)
+                .map(TradeOfPepperMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        tradeService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/farmer/{farmerId}")
-    public List<TradeOfPepper> getByFarmer(@PathVariable Integer farmerId) {
-        return tradeService.getByFarmer(farmerId);
-    }
-
-    @GetMapping("/point-of-sale/{posId}")
-    public List<TradeOfPepper> getByPointOfSale(@PathVariable Integer posId) {
-        return tradeService.getByPointOfSale(posId);
     }
 }

@@ -20,98 +20,50 @@ public class TradeOfPepper {
     @JoinColumn(name = "point_of_sale_id", nullable = false)
     private PointOfSale pointOfSale;
 
-    @Column(name = "trade_date")
+    @Column(name = "trade_date", nullable = false)
     private LocalDate tradeDate;
 
-    @Column(name = "pepper_class")
+    @Column(name = "pepper_class", nullable = false)
     private Integer pepperClass;
 
-    @Column(name = "pepper_color")
+    @Column(name = "pepper_color", nullable = false)
     private String pepperColor;
 
-    @Column(name = "trade_price")
+    @Column(name = "trade_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal tradePrice;
 
-    @Column(name = "trade_weight")
+    @Column(name = "trade_weight", nullable = false, precision = 10, scale = 3)
     private BigDecimal tradeWeight;
 
-    @Column(name = "vat_rate")
+    @Column(name = "vat_rate", nullable = false)
     private Integer vatRate;
 
-    public TradeOfPepper() {
-    }
+    /* ===== GET / SET ===== */
 
-    // ===== GETTERY I SETTERY =====
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public Integer getId() {
-        return id;
-    }
+    public Farmer getFarmer() { return farmer; }
+    public void setFarmer(Farmer farmer) { this.farmer = farmer; }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public PointOfSale getPointOfSale() { return pointOfSale; }
+    public void setPointOfSale(PointOfSale pointOfSale) { this.pointOfSale = pointOfSale; }
 
-    public Farmer getFarmer() {
-        return farmer;
-    }
+    public LocalDate getTradeDate() { return tradeDate; }
+    public void setTradeDate(LocalDate tradeDate) { this.tradeDate = tradeDate; }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
-    }
+    public Integer getPepperClass() { return pepperClass; }
+    public void setPepperClass(Integer pepperClass) { this.pepperClass = pepperClass; }
 
-    public PointOfSale getPointOfSale() {
-        return pointOfSale;
-    }
+    public String getPepperColor() { return pepperColor; }
+    public void setPepperColor(String pepperColor) { this.pepperColor = pepperColor; }
 
-    public void setPointOfSale(PointOfSale pointOfSale) {
-        this.pointOfSale = pointOfSale;
-    }
+    public BigDecimal getTradePrice() { return tradePrice; }
+    public void setTradePrice(BigDecimal tradePrice) { this.tradePrice = tradePrice; }
 
-    public LocalDate getTradeDate() {
-        return tradeDate;
-    }
+    public BigDecimal getTradeWeight() { return tradeWeight; }
+    public void setTradeWeight(BigDecimal tradeWeight) { this.tradeWeight = tradeWeight; }
 
-    public void setTradeDate(LocalDate tradeDate) {
-        this.tradeDate = tradeDate;
-    }
-
-    public Integer getPepperClass() {
-        return pepperClass;
-    }
-
-    public void setPepperClass(Integer pepperClass) {
-        this.pepperClass = pepperClass;
-    }
-
-    public String getPepperColor() {
-        return pepperColor;
-    }
-
-    public void setPepperColor(String pepperColor) {
-        this.pepperColor = pepperColor;
-    }
-
-    public BigDecimal getTradePrice() {
-        return tradePrice;
-    }
-
-    public void setTradePrice(BigDecimal tradePrice) {
-        this.tradePrice = tradePrice;
-    }
-
-    public BigDecimal getTradeWeight() {
-        return tradeWeight;
-    }
-
-    public void setTradeWeight(BigDecimal tradeWeight) {
-        this.tradeWeight = tradeWeight;
-    }
-
-    public Integer getVatRate() {
-        return vatRate;
-    }
-
-    public void setVatRate(Integer vatRate) {
-        this.vatRate = vatRate;
-    }
+    public Integer getVatRate() { return vatRate; }
+    public void setVatRate(Integer vatRate) { this.vatRate = vatRate; }
 }
