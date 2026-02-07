@@ -1,36 +1,16 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "expense")
-public class Expense {
+public class ExpenseDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
-    private Integer farmerId;
-
-    @Column(name = "expense_category_id", nullable = false)
     private Integer expenseCategoryId;
-
-    @Column(name = "expense_date", nullable = false)
     private LocalDate expenseDate;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal quantity;
-
-    @Column(nullable = false)
     private String unit;
-
-    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal price;
 
     public Integer getId() {
@@ -39,14 +19,6 @@ public class Expense {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getFarmerId() {
-        return farmerId;
-    }
-
-    public void setFarmerId(Integer farmerId) {
-        this.farmerId = farmerId;
     }
 
     public Integer getExpenseCategoryId() {

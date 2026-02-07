@@ -10,16 +10,14 @@ public class ExpenseCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    @Column(name = "farmer_id", nullable = false)
+    private Integer farmerId;
 
+    @Column(nullable = false)
     private String name;
 
-    public ExpenseCategory() {
-    }
-
-    // ===== GETTERY I SETTERY =====
+    @Column
+    private String icon;
 
     public Integer getId() {
         return id;
@@ -29,12 +27,12 @@ public class ExpenseCategory {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
     public String getName() {
@@ -43,5 +41,13 @@ public class ExpenseCategory {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

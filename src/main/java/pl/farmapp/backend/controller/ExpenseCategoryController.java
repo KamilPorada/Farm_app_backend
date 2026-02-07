@@ -1,8 +1,8 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.ExpenseCategory;
+import pl.farmapp.backend.dto.ExpenseCategoryDto;
 import pl.farmapp.backend.service.ExpenseCategoryService;
 
 import java.util.List;
@@ -11,48 +11,42 @@ import java.util.List;
 @RequestMapping("/api/expense-categories")
 public class ExpenseCategoryController {
 
-    private final ExpenseCategoryService expenseCategoryService;
+    private final ExpenseCategoryService service;
 
-    public ExpenseCategoryController(ExpenseCategoryService expenseCategoryService) {
-        this.expenseCategoryService = expenseCategoryService;
+    public ExpenseCategoryController(ExpenseCategoryService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<ExpenseCategory> getAll() {
-        return expenseCategoryService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ExpenseCategory> getById(@PathVariable Integer id) {
-        return expenseCategoryService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public List<ExpenseCategoryDto> getAll(
+            @RequestParam Integer farmerId
+    ) {
+        return service.getAll(farmerId);
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseCategory> create(@RequestBody ExpenseCategory category) {
-        return expenseCategoryService.create(category)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public ExpenseCategoryDto create(
+            @RequestParam Integer farmerId,
+            @RequestBody ExpenseCategoryDto dto
+    ) {
+        return service.create(farmerId, dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExpenseCategory> update(
+    public ExpenseCategoryDto update(
             @PathVariable Integer id,
-            @RequestBody ExpenseCategory category) {
-        return expenseCategoryService.update(id, category)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+            @RequestParam Integer farmerId,
+            @RequestBody ExpenseCategoryDto dto
+    ) {
+        return service.update(id, farmerId, dto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        expenseCategoryService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/farmer/{farmerId}")
-    public List<ExpenseCategory> getByFarmer(@PathVariable Integer farmerId) {
-        return expenseCategoryService.getByFarmer(farmerId);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+            @PathVariable Integer id,
+            @RequestParam Integer farmerId
+    ) {
+        service.delete(id, farmerId);
     }
 }

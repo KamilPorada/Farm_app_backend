@@ -1,8 +1,8 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.Expense;
+import pl.farmapp.backend.dto.ExpenseDto;
 import pl.farmapp.backend.service.ExpenseService;
 
 import java.util.List;
@@ -11,53 +11,50 @@ import java.util.List;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
-    private final ExpenseService expenseService;
+    private final ExpenseService service;
 
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
+    public ExpenseController(ExpenseService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Expense> getAll() {
-        return expenseService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Expense> getById(@PathVariable Integer id) {
-        return expenseService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<Expense> create(@RequestBody Expense expense) {
-        return expenseService.create(expense)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Expense> update(
-            @PathVariable Integer id,
-            @RequestBody Expense expense) {
-        return expenseService.update(id, expense)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        expenseService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/farmer/{farmerId}")
-    public List<Expense> getByFarmer(@PathVariable Integer farmerId) {
-        return expenseService.getByFarmer(farmerId);
+    public List<ExpenseDto> getAll(
+            @RequestParam Integer farmerId
+    ) {
+        return service.getAll(farmerId);
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<Expense> getByCategory(@PathVariable Integer categoryId) {
-        return expenseService.getByCategory(categoryId);
+    public List<ExpenseDto> getByCategory(
+            @RequestParam Integer farmerId,
+            @PathVariable Integer categoryId
+    ) {
+        return service.getByCategory(farmerId, categoryId);
+    }
+
+    @PostMapping
+    public ExpenseDto create(
+            @RequestParam Integer farmerId,
+            @RequestBody ExpenseDto dto
+    ) {
+        return service.create(farmerId, dto);
+    }
+
+    @PutMapping("/{id}")
+    public ExpenseDto update(
+            @PathVariable Integer id,
+            @RequestParam Integer farmerId,
+            @RequestBody ExpenseDto dto
+    ) {
+        return service.update(id, farmerId, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+            @PathVariable Integer id,
+            @RequestParam Integer farmerId
+    ) {
+        service.delete(id, farmerId);
     }
 }

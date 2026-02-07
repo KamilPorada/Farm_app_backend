@@ -1,90 +1,89 @@
 package pl.farmapp.backend.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.ExpenseDto;
 import pl.farmapp.backend.entity.Expense;
-import pl.farmapp.backend.repository.ExpenseCategoryRepository;
 import pl.farmapp.backend.repository.ExpenseRepository;
-import pl.farmapp.backend.repository.FarmerRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
 
-    private final ExpenseRepository expenseRepository;
-    private final FarmerRepository farmerRepository;
-    private final ExpenseCategoryRepository expenseCategoryRepository;
+    private final ExpenseRepository repository;
 
-    public ExpenseService(ExpenseRepository expenseRepository,
-                          FarmerRepository farmerRepository,
-                          ExpenseCategoryRepository expenseCategoryRepository) {
-        this.expenseRepository = expenseRepository;
-        this.farmerRepository = farmerRepository;
-        this.expenseCategoryRepository = expenseCategoryRepository;
+    public ExpenseService(ExpenseRepository repository) {
+        this.repository = repository;
     }
 
-    public List<Expense> getAll() {
-        return expenseRepository.findAll();
+    public List<ExpenseDto> getAll(Integer farmerId) {
+        return repository.findByFarmerIdOrderByExpenseDateDesc(farmerId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Expense> getById(Integer id) {
-        return expenseRepository.findById(id);
+    public List<ExpenseDto> getByCategory(Integer farmerId, Integer categoryId) {
+        return repository
+                .findByFarmerIdAndExpenseCategoryIdOrderByExpenseDateDesc(farmerId, categoryId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Expense> create(Expense expense) {
+    public ExpenseDto create(Integer farmerId, ExpenseDto dto) {
+        Expense expense = new Expense();
+        expense.setFarmerId(farmerId);
+        expense.setExpenseCategoryId(dto.getExpenseCategoryId());
+        expense.setExpenseDate(dto.getExpenseDate());
+        expense.setTitle(dto.getTitle());
+        expense.setQuantity(dto.getQuantity());
+        expense.setUnit(dto.getUnit());
+        expense.setPrice(dto.getPrice());
 
-        if (expense.getFarmer() == null ||
-                expense.getFarmer().getId() == null ||
-                !farmerRepository.existsById(expense.getFarmer().getId())) {
-            return Optional.empty();
+        return toDto(repository.save(expense));
+    }
+
+    public ExpenseDto update(Integer id, Integer farmerId, ExpenseDto dto) {
+        Expense expense = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Wydatek nie istnieje"));
+
+        if (!expense.getFarmerId().equals(farmerId)) {
+            throw new SecurityException("Brak dostępu");
         }
 
-        if (expense.getExpenseCategory() == null ||
-                expense.getExpenseCategory().getId() == null ||
-                !expenseCategoryRepository.existsById(expense.getExpenseCategory().getId())) {
-            return Optional.empty();
+        expense.setExpenseCategoryId(dto.getExpenseCategoryId());
+        expense.setExpenseDate(dto.getExpenseDate());
+        expense.setTitle(dto.getTitle());
+        expense.setQuantity(dto.getQuantity());
+        expense.setUnit(dto.getUnit());
+        expense.setPrice(dto.getPrice());
+
+        return toDto(repository.save(expense));
+    }
+
+    public void delete(Integer id, Integer farmerId) {
+        Expense expense = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Wydatek nie istnieje"));
+
+        if (!expense.getFarmerId().equals(farmerId)) {
+            throw new SecurityException("Brak dostępu");
         }
 
-        return Optional.of(expenseRepository.save(expense));
+        repository.delete(expense);
     }
 
-    public Optional<Expense> update(Integer id, Expense updated) {
-        return expenseRepository.findById(id).flatMap(existing -> {
-
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getExpenseCategory() != null && updated.getExpenseCategory().getId() != null) {
-                if (!expenseCategoryRepository.existsById(updated.getExpenseCategory().getId())) {
-                    return Optional.empty();
-                }
-                existing.setExpenseCategory(updated.getExpenseCategory());
-            }
-
-            existing.setExpenseDate(updated.getExpenseDate());
-            existing.setTitle(updated.getTitle());
-            existing.setQuantity(updated.getQuantity());
-            existing.setUnit(updated.getUnit());
-            existing.setPrice(updated.getPrice());
-
-            return Optional.of(expenseRepository.save(existing));
-        });
-    }
-
-    public void delete(Integer id) {
-        expenseRepository.deleteById(id);
-    }
-
-    public List<Expense> getByFarmer(Integer farmerId) {
-        return expenseRepository.findByFarmerId(farmerId);
-    }
-
-    public List<Expense> getByCategory(Integer categoryId) {
-        return expenseRepository.findByExpenseCategoryId(categoryId);
+    private ExpenseDto toDto(Expense expense) {
+        ExpenseDto dto = new ExpenseDto();
+        dto.setId(expense.getId());
+        dto.setExpenseCategoryId(expense.getExpenseCategoryId());
+        dto.setExpenseDate(expense.getExpenseDate());
+        dto.setTitle(expense.getTitle());
+        dto.setQuantity(expense.getQuantity());
+        dto.setUnit(expense.getUnit());
+        dto.setPrice(expense.getPrice());
+        return dto;
     }
 }
