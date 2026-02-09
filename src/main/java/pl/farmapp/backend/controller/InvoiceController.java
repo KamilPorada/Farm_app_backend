@@ -2,6 +2,7 @@ package pl.farmapp.backend.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.farmapp.backend.dto.InvoiceDto;
 import pl.farmapp.backend.entity.Invoice;
 import pl.farmapp.backend.service.InvoiceService;
 
@@ -17,49 +18,72 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    @GetMapping
-    public List<Invoice> getAll() {
-        return invoiceService.getAll();
+    /* CREATE */
+    @PostMapping("/farmer/{farmerId}")
+    public ResponseEntity<Invoice> createInvoice(
+            @PathVariable Integer farmerId,
+            @RequestBody InvoiceDto dto
+    ) {
+        return ResponseEntity.ok(invoiceService.createInvoice(farmerId, dto));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getById(@PathVariable Integer id) {
-        return invoiceService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    /* UPDATE */
+    @PutMapping("/{invoiceId}")
+    public ResponseEntity<Invoice> updateInvoice(
+            @PathVariable Integer invoiceId,
+            @RequestBody InvoiceDto dto
+    ) {
+        return ResponseEntity.ok(invoiceService.updateInvoice(invoiceId, dto));
     }
 
-    @PostMapping
-    public ResponseEntity<Invoice> create(@RequestBody Invoice invoice) {
-        return invoiceService.create(invoice)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    /* UPDATE STATUS – KLUCZOWY */
+    @PatchMapping("/{invoiceId}/status")
+    public ResponseEntity<Invoice> updateInvoiceStatus(
+            @PathVariable Integer invoiceId,
+            @RequestParam Boolean status
+    ) {
+        return ResponseEntity.ok(
+                invoiceService.updateInvoiceStatus(invoiceId, status)
+        );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Invoice> update(
-            @PathVariable Integer id,
-            @RequestBody Invoice invoice) {
-        return invoiceService.update(id, invoice)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        invoiceService.delete(id);
+    /* DELETE */
+    @DeleteMapping("/{invoiceId}")
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Integer invoiceId) {
+        invoiceService.deleteInvoice(invoiceId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<Invoice> getByFarmer(@PathVariable Integer farmerId) {
-        return invoiceService.getByFarmer(farmerId);
+    /* GET ALL */
+    @GetMapping("/farmer/{farmerId}/year/{year}")
+    public ResponseEntity<List<Invoice>> getInvoices(
+            @PathVariable Integer farmerId,
+            @PathVariable int year
+    ) {
+        return ResponseEntity.ok(
+                invoiceService.getInvoicesByFarmerAndYear(farmerId, year)
+        );
     }
 
-    @GetMapping("/farmer/{farmerId}/status/{status}")
-    public List<Invoice> getByFarmerAndStatus(
+    /* GET REALIZED */
+    @GetMapping("/farmer/{farmerId}/year/{year}/realized")
+    public ResponseEntity<List<Invoice>> getRealizedInvoices(
             @PathVariable Integer farmerId,
-            @PathVariable Boolean status) {
-        return invoiceService.getByFarmerAndStatus(farmerId, status);
+            @PathVariable int year
+    ) {
+        return ResponseEntity.ok(
+                invoiceService.getRealizedInvoices(farmerId, year)
+        );
+    }
+
+    /* GET PENDING */
+    @GetMapping("/farmer/{farmerId}/year/{year}/pending")
+    public ResponseEntity<List<Invoice>> getPendingInvoices(
+            @PathVariable Integer farmerId,
+            @PathVariable int year
+    ) {
+        return ResponseEntity.ok(
+                invoiceService.getPendingInvoices(farmerId, year)
+        );
     }
 }

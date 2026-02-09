@@ -3,6 +3,7 @@ package pl.farmapp.backend.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import pl.farmapp.backend.dto.ExpenseDto;
+import pl.farmapp.backend.service.ExpenseCategoryService;
 import pl.farmapp.backend.service.ExpenseService;
 
 import java.util.List;
@@ -17,21 +18,32 @@ public class ExpenseController {
         this.service = service;
     }
 
+    /* =======================
+       GET ALL (BY YEAR)
+    ======================= */
     @GetMapping
     public List<ExpenseDto> getAll(
-            @RequestParam Integer farmerId
+            @RequestParam Integer farmerId,
+            @RequestParam Integer year
     ) {
-        return service.getAll(farmerId);
+        return service.getAll(farmerId, year);
     }
 
+    /* =======================
+       GET BY CATEGORY (BY YEAR)
+    ======================= */
     @GetMapping("/category/{categoryId}")
     public List<ExpenseDto> getByCategory(
             @RequestParam Integer farmerId,
+            @RequestParam Integer year,
             @PathVariable Integer categoryId
     ) {
-        return service.getByCategory(farmerId, categoryId);
+        return service.getByCategory(farmerId, categoryId, year);
     }
 
+    /* =======================
+       CREATE
+    ======================= */
     @PostMapping
     public ExpenseDto create(
             @RequestParam Integer farmerId,
@@ -40,6 +52,9 @@ public class ExpenseController {
         return service.create(farmerId, dto);
     }
 
+    /* =======================
+       UPDATE
+    ======================= */
     @PutMapping("/{id}")
     public ExpenseDto update(
             @PathVariable Integer id,
@@ -49,6 +64,9 @@ public class ExpenseController {
         return service.update(id, farmerId, dto);
     }
 
+    /* =======================
+       DELETE
+    ======================= */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(

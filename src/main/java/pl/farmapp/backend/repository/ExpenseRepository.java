@@ -8,18 +8,27 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Integer> {
 
-    List<Expense> findByFarmerIdOrderByExpenseDateDesc(Integer farmerId);
-
-    List<Expense> findByFarmerIdAndExpenseCategoryIdOrderByExpenseDateDesc(
-            Integer farmerId,
-            Integer expenseCategoryId
-    );
-
-    List<Expense> findByFarmerIdAndExpenseDateBetween(
+    /* =======================
+       FARMER + DATE RANGE
+    ======================= */
+    List<Expense> findAllByFarmerIdAndExpenseDateBetweenOrderByExpenseDateDesc(
             Integer farmerId,
             LocalDate from,
             LocalDate to
     );
 
+    /* =======================
+       FARMER + CATEGORY + DATE RANGE
+    ======================= */
+    List<Expense> findAllByFarmerIdAndExpenseCategoryIdAndExpenseDateBetweenOrderByExpenseDateDesc(
+            Integer farmerId,
+            Integer expenseCategoryId,
+            LocalDate from,
+            LocalDate to
+    );
+
+    /* =======================
+       SAFETY
+    ======================= */
     boolean existsByExpenseCategoryId(Integer expenseCategoryId);
 }

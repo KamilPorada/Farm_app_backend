@@ -1,89 +1,88 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.InvoiceDto;
 import pl.farmapp.backend.entity.Invoice;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.InvoiceRepository;
-import pl.farmapp.backend.repository.PointOfSaleRepository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
-    private final FarmerRepository farmerRepository;
-    private final PointOfSaleRepository pointOfSaleRepository;
 
-    public InvoiceService(InvoiceRepository invoiceRepository,
-                          FarmerRepository farmerRepository,
-                          PointOfSaleRepository pointOfSaleRepository) {
+    public InvoiceService(InvoiceRepository invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
-        this.farmerRepository = farmerRepository;
-        this.pointOfSaleRepository = pointOfSaleRepository;
     }
 
-    public List<Invoice> getAll() {
-        return invoiceRepository.findAll();
+    /* CREATE */
+    public Invoice createInvoice(Integer farmerId, InvoiceDto dto) {
+        Invoice invoice = new Invoice();
+        invoice.setFarmerId(farmerId);
+        invoice.setPointOfSaleId(dto.getPointOfSaleId());
+        invoice.setInvoiceDate(dto.getInvoiceDate());
+        invoice.setInvoiceNumber(dto.getInvoiceNumber());
+        invoice.setAmount(dto.getAmount());
+        invoice.setStatus(false); // zawsze oczekująca
+
+        return invoiceRepository.save(invoice);
     }
 
-    public Optional<Invoice> getById(Integer id) {
-        return invoiceRepository.findById(id);
+    /* UPDATE (pełna edycja) */
+    public Invoice updateInvoice(Integer invoiceId, InvoiceDto dto) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+
+        invoice.setPointOfSaleId(dto.getPointOfSaleId());
+        invoice.setInvoiceDate(dto.getInvoiceDate());
+        invoice.setInvoiceNumber(dto.getInvoiceNumber());
+        invoice.setAmount(dto.getAmount());
+
+        return invoiceRepository.save(invoice);
     }
 
-    public Optional<Invoice> create(Invoice invoice) {
+    /* UPDATE STATUS (kluczowy endpoint) */
+    public Invoice updateInvoiceStatus(Integer invoiceId, Boolean status) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
-        if (invoice.getFarmer() == null ||
-                invoice.getFarmer().getId() == null ||
-                !farmerRepository.existsById(invoice.getFarmer().getId())) {
-            return Optional.empty();
-        }
-
-        if (invoice.getPointOfSale() == null ||
-                invoice.getPointOfSale().getId() == null ||
-                !pointOfSaleRepository.existsById(invoice.getPointOfSale().getId())) {
-            return Optional.empty();
-        }
-
-        return Optional.of(invoiceRepository.save(invoice));
+        invoice.setStatus(status);
+        return invoiceRepository.save(invoice);
     }
 
-    public Optional<Invoice> update(Integer id, Invoice updated) {
-        return invoiceRepository.findById(id).flatMap(existing -> {
-
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getPointOfSale() != null && updated.getPointOfSale().getId() != null) {
-                if (!pointOfSaleRepository.existsById(updated.getPointOfSale().getId())) {
-                    return Optional.empty();
-                }
-                existing.setPointOfSale(updated.getPointOfSale());
-            }
-
-            existing.setInvoiceDate(updated.getInvoiceDate());
-            existing.setInvoiceNumber(updated.getInvoiceNumber());
-            existing.setAmount(updated.getAmount());
-            existing.setStatus(updated.getStatus());
-
-            return Optional.of(invoiceRepository.save(existing));
-        });
+    /* DELETE */
+    public void deleteInvoice(Integer invoiceId) {
+        invoiceRepository.deleteById(invoiceId);
     }
 
-    public void delete(Integer id) {
-        invoiceRepository.deleteById(id);
+    /* GET ALL BY FARMER + YEAR */
+    public List<Invoice> getInvoicesByFarmerAndYear(Integer farmerId, int year) {
+        return invoiceRepository.findByFarmerIdAndInvoiceDateBetween(
+                farmerId,
+                LocalDate.of(year, 1, 1),
+                LocalDate.of(year, 12, 31)
+        );
     }
 
-    public List<Invoice> getByFarmer(Integer farmerId) {
-        return invoiceRepository.findByFarmerId(farmerId);
+    /* GET REALIZED */
+    public List<Invoice> getRealizedInvoices(Integer farmerId, int year) {
+        return invoiceRepository.findByFarmerIdAndStatusAndInvoiceDateBetween(
+                farmerId,
+                true,
+                LocalDate.of(year, 1, 1),
+                LocalDate.of(year, 12, 31)
+        );
     }
 
-    public List<Invoice> getByFarmerAndStatus(Integer farmerId, Boolean status) {
-        return invoiceRepository.findByFarmerIdAndStatus(farmerId, status);
+    /* GET NOT REALIZED */
+    public List<Invoice> getPendingInvoices(Integer farmerId, int year) {
+        return invoiceRepository.findByFarmerIdAndStatusAndInvoiceDateBetween(
+                farmerId,
+                false,
+                LocalDate.of(year, 1, 1),
+                LocalDate.of(year, 12, 31)
+        );
     }
 }

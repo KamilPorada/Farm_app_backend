@@ -6,6 +6,7 @@ import pl.farmapp.backend.dto.ExpenseDto;
 import pl.farmapp.backend.entity.Expense;
 import pl.farmapp.backend.repository.ExpenseRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,21 +19,40 @@ public class ExpenseService {
         this.repository = repository;
     }
 
-    public List<ExpenseDto> getAll(Integer farmerId) {
-        return repository.findByFarmerIdOrderByExpenseDateDesc(farmerId)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
+    /* =======================
+       GET ALL (BY YEAR)
+    ======================= */
+    public List<ExpenseDto> getAll(Integer farmerId, Integer year) {
+        LocalDate from = LocalDate.of(year, 1, 1);
+        LocalDate to = LocalDate.of(year, 12, 31);
 
-    public List<ExpenseDto> getByCategory(Integer farmerId, Integer categoryId) {
         return repository
-                .findByFarmerIdAndExpenseCategoryIdOrderByExpenseDateDesc(farmerId, categoryId)
+                .findAllByFarmerIdAndExpenseDateBetweenOrderByExpenseDateDesc(farmerId, from, to)
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    public List<ExpenseDto> getByCategory(Integer farmerId, Integer categoryId, Integer year) {
+        LocalDate from = LocalDate.of(year, 1, 1);
+        LocalDate to = LocalDate.of(year, 12, 31);
+
+        return repository
+                .findAllByFarmerIdAndExpenseCategoryIdAndExpenseDateBetweenOrderByExpenseDateDesc(
+                        farmerId,
+                        categoryId,
+                        from,
+                        to
+                )
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+
+    /* =======================
+       CREATE
+    ======================= */
     public ExpenseDto create(Integer farmerId, ExpenseDto dto) {
         Expense expense = new Expense();
         expense.setFarmerId(farmerId);
@@ -46,6 +66,9 @@ public class ExpenseService {
         return toDto(repository.save(expense));
     }
 
+    /* =======================
+       UPDATE
+    ======================= */
     public ExpenseDto update(Integer id, Integer farmerId, ExpenseDto dto) {
         Expense expense = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Wydatek nie istnieje"));
@@ -64,6 +87,9 @@ public class ExpenseService {
         return toDto(repository.save(expense));
     }
 
+    /* =======================
+       DELETE
+    ======================= */
     public void delete(Integer id, Integer farmerId) {
         Expense expense = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Wydatek nie istnieje"));
@@ -75,6 +101,9 @@ public class ExpenseService {
         repository.delete(expense);
     }
 
+    /* =======================
+       MAPPER
+    ======================= */
     private ExpenseDto toDto(Expense expense) {
         ExpenseDto dto = new ExpenseDto();
         dto.setId(expense.getId());
