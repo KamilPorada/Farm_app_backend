@@ -1,66 +1,66 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.FinancialDecrease;
+import pl.farmapp.backend.dto.FinancialDecreaseDto;
 import pl.farmapp.backend.service.FinancialDecreaseService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/financial-decreases")
+@RequestMapping("/api/financial/decreases")
 public class FinancialDecreaseController {
 
     private final FinancialDecreaseService service;
 
-    public FinancialDecreaseController(FinancialDecreaseService service) {
+    public FinancialDecreaseController(
+            FinancialDecreaseService service
+    ) {
         this.service = service;
     }
 
-    @GetMapping
-    public List<FinancialDecrease> getAll() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FinancialDecrease> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    // CREATE
     @PostMapping
-    public ResponseEntity<FinancialDecrease> create(
-            @RequestBody FinancialDecrease decrease) {
-        return service.create(decrease)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public FinancialDecreaseDto create(
+            @RequestBody FinancialDecreaseDto dto
+    ) {
+        return service.create(dto);
     }
 
+    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<FinancialDecrease> update(
+    public FinancialDecreaseDto update(
             @PathVariable Integer id,
-            @RequestBody FinancialDecrease decrease) {
-        return service.update(id, decrease)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+            @RequestBody FinancialDecreaseDto dto
+    ) {
+        return service.update(id, dto);
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<FinancialDecrease> getByFarmer(
-            @PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
+    // GET BY FARMER + SEASON
+    @GetMapping
+    public List<FinancialDecreaseDto> getByFarmerAndSeason(
+            @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear
+    ) {
+        return service.getByFarmerAndSeason(farmerId, seasonYear);
     }
 
-    @GetMapping("/type/{typeId}")
-    public List<FinancialDecrease> getByType(
-            @PathVariable Integer typeId) {
-        return service.getByType(typeId);
+    @GetMapping("/by-type")
+    public List<FinancialDecreaseDto> getByFarmerSeasonAndType(
+            @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear,
+            @RequestParam Integer typeId
+    ) {
+        return service.getByFarmerSeasonAndType(
+                farmerId,
+                seasonYear,
+                typeId
+        );
     }
+
 }

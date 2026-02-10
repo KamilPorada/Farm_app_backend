@@ -1,31 +1,14 @@
-package pl.farmapp.backend.entity;
-
-import jakarta.persistence.*;
+package pl.farmapp.backend.dto;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "financial_increase")
-public class FinancialIncrease {
+public class FinancialDecreaseDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "financial_increase_type_id",
-            nullable = false
-    )
-    private FinancialIncreaseType type;
-
-    @Column(nullable = false)
+    private Integer typeId;
+    private String typeName;
     private String title;
-
-    @Column(nullable = false)
     private BigDecimal amount;
 
     public Integer getId() {
@@ -44,12 +27,20 @@ public class FinancialIncrease {
         this.farmerId = farmerId;
     }
 
-    public FinancialIncreaseType getType() {
-        return type;
+    public Integer getTypeId() {
+        return typeId;
     }
 
-    public void setType(FinancialIncreaseType type) {
-        this.type = type;
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public String getTitle() {

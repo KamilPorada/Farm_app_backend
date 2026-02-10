@@ -1,6 +1,8 @@
 package pl.farmapp.backend.entity;
 
 import jakarta.persistence.*;
+import pl.farmapp.backend.entity.FinancialDecreaseType;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -11,22 +13,21 @@ public class FinancialDecrease {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    @Column(name = "farmer_id", nullable = false)
+    private Integer farmerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "financial_decrease_type_id", nullable = false)
-    private FinancialDecreaseType financialDecreaseType;
+    @JoinColumn(
+            name = "financial_decrease_type_id",
+            nullable = false
+    )
+    private FinancialDecreaseType type;
 
+    @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
     private BigDecimal amount;
-
-    public FinancialDecrease() {
-    }
-
-    // ===== GETTERY I SETTERY =====
 
     public Integer getId() {
         return id;
@@ -36,20 +37,20 @@ public class FinancialDecrease {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
-    public FinancialDecreaseType getFinancialDecreaseType() {
-        return financialDecreaseType;
+    public FinancialDecreaseType getType() {
+        return type;
     }
 
-    public void setFinancialDecreaseType(FinancialDecreaseType financialDecreaseType) {
-        this.financialDecreaseType = financialDecreaseType;
+    public void setType(FinancialDecreaseType type) {
+        this.type = type;
     }
 
     public String getTitle() {

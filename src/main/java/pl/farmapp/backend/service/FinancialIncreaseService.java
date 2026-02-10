@@ -1,95 +1,108 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FinancialIncreaseDto;
 import pl.farmapp.backend.entity.FinancialIncrease;
-import pl.farmapp.backend.repository.FarmerRepository;
+import pl.farmapp.backend.entity.FinancialIncreaseType;
 import pl.farmapp.backend.repository.FinancialIncreaseRepository;
 import pl.farmapp.backend.repository.FinancialIncreaseTypeRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FinancialIncreaseService {
 
     private final FinancialIncreaseRepository repository;
-    private final FarmerRepository farmerRepository;
     private final FinancialIncreaseTypeRepository typeRepository;
 
     public FinancialIncreaseService(
             FinancialIncreaseRepository repository,
-            FarmerRepository farmerRepository,
-            FinancialIncreaseTypeRepository typeRepository) {
+            FinancialIncreaseTypeRepository typeRepository
+    ) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
         this.typeRepository = typeRepository;
     }
 
-    public List<FinancialIncrease> getAll() {
-        return repository.findAll();
+    // CREATE
+    public FinancialIncreaseDto create(FinancialIncreaseDto dto) {
+
+        FinancialIncreaseType type = typeRepository
+                .findById(dto.getTypeId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Type not found")
+                );
+
+        FinancialIncrease entity = new FinancialIncrease();
+        entity.setFarmerId(dto.getFarmerId());
+        entity.setType(type);
+        entity.setTitle(dto.getTitle());
+        entity.setAmount(dto.getAmount());
+
+        return mapToDto(repository.save(entity));
     }
 
-    public Optional<FinancialIncrease> getById(Integer id) {
-        return repository.findById(id);
-    }
+    // UPDATE
+    public FinancialIncreaseDto update(Integer id, FinancialIncreaseDto dto) {
+        FinancialIncrease entity = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Increase not found"));
 
-    public Optional<FinancialIncrease> create(FinancialIncrease increase) {
-
-        if (increase.getFarmer() == null ||
-                increase.getFarmer().getId() == null ||
-                !farmerRepository.existsById(increase.getFarmer().getId())) {
-            return Optional.empty();
+        // 🔒 NIE ruszamy title, farmerId, type
+        if (dto.getAmount() != null) {
+            entity.setAmount(dto.getAmount());
         }
 
-        if (increase.getFinancialIncreaseType() == null ||
-                increase.getFinancialIncreaseType().getId() == null ||
-                !typeRepository.existsById(increase.getFinancialIncreaseType().getId())) {
-            return Optional.empty();
-        }
-
-        return Optional.of(repository.save(increase));
+        return mapToDto(repository.save(entity));
     }
 
-    public Optional<FinancialIncrease> update(
-            Integer id,
-            FinancialIncrease updated) {
 
-        return repository.findById(id).flatMap(existing -> {
-
-            if (updated.getFarmer() != null &&
-                    updated.getFarmer().getId() != null) {
-
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getFinancialIncreaseType() != null &&
-                    updated.getFinancialIncreaseType().getId() != null) {
-
-                if (!typeRepository.existsById(updated.getFinancialIncreaseType().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFinancialIncreaseType(updated.getFinancialIncreaseType());
-            }
-
-            existing.setTitle(updated.getTitle());
-            existing.setAmount(updated.getAmount());
-
-            return Optional.of(repository.save(existing));
-        });
-    }
-
+    // DELETE
     public void delete(Integer id) {
         repository.deleteById(id);
     }
 
-    public List<FinancialIncrease> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    // GET BY FARMER + SEASON
+    public List<FinancialIncreaseDto> getByFarmerAndSeason(
+            Integer farmerId,
+            Integer seasonYear
+    ) {
+        return repository
+                .findByFarmerIdAndType_SeasonYear(
+                        farmerId,
+                        seasonYear
+                )
+                .stream()
+                .map(this::mapToDto)
+                .toList();
     }
 
-    public List<FinancialIncrease> getByType(Integer typeId) {
-        return repository.findByFinancialIncreaseTypeId(typeId);
+    // GET BY FARMER + SEASON + TYPE
+    public List<FinancialIncreaseDto> getByFarmerSeasonAndType(
+            Integer farmerId,
+            Integer seasonYear,
+            Integer typeId
+    ) {
+        return repository
+                .findByFarmerIdAndType_IdAndType_SeasonYear(
+                        farmerId,
+                        typeId,
+                        seasonYear
+                )
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    // MAPPING
+    private FinancialIncreaseDto mapToDto(
+            FinancialIncrease entity
+    ) {
+        FinancialIncreaseDto dto = new FinancialIncreaseDto();
+        dto.setId(entity.getId());
+        dto.setFarmerId(entity.getFarmerId());
+        dto.setTypeId(entity.getType().getId());
+        dto.setTypeName(entity.getType().getName());
+        dto.setTitle(entity.getTitle());
+        dto.setAmount(entity.getAmount());
+        return dto;
     }
 }

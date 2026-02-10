@@ -1,95 +1,115 @@
 package pl.farmapp.backend.service;
 
+
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FinancialDecreaseDto;
 import pl.farmapp.backend.entity.FinancialDecrease;
-import pl.farmapp.backend.repository.FarmerRepository;
+import pl.farmapp.backend.entity.FinancialDecreaseType;
 import pl.farmapp.backend.repository.FinancialDecreaseRepository;
 import pl.farmapp.backend.repository.FinancialDecreaseTypeRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FinancialDecreaseService {
 
     private final FinancialDecreaseRepository repository;
-    private final FarmerRepository farmerRepository;
     private final FinancialDecreaseTypeRepository typeRepository;
 
     public FinancialDecreaseService(
             FinancialDecreaseRepository repository,
-            FarmerRepository farmerRepository,
-            FinancialDecreaseTypeRepository typeRepository) {
+            FinancialDecreaseTypeRepository typeRepository
+    ) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
         this.typeRepository = typeRepository;
     }
 
-    public List<FinancialDecrease> getAll() {
-        return repository.findAll();
+    // CREATE
+    public FinancialDecreaseDto create(FinancialDecreaseDto dto) {
+
+        FinancialDecreaseType type = typeRepository
+                .findById(dto.getTypeId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Type not found")
+                );
+
+        FinancialDecrease entity = new FinancialDecrease();
+        entity.setFarmerId(dto.getFarmerId());
+        entity.setType(type);
+        entity.setTitle(dto.getTitle());
+        entity.setAmount(dto.getAmount());
+
+        return mapToDto(repository.save(entity));
     }
 
-    public Optional<FinancialDecrease> getById(Integer id) {
-        return repository.findById(id);
-    }
-
-    public Optional<FinancialDecrease> create(FinancialDecrease decrease) {
-
-        if (decrease.getFarmer() == null ||
-                decrease.getFarmer().getId() == null ||
-                !farmerRepository.existsById(decrease.getFarmer().getId())) {
-            return Optional.empty();
-        }
-
-        if (decrease.getFinancialDecreaseType() == null ||
-                decrease.getFinancialDecreaseType().getId() == null ||
-                !typeRepository.existsById(decrease.getFinancialDecreaseType().getId())) {
-            return Optional.empty();
-        }
-
-        return Optional.of(repository.save(decrease));
-    }
-
-    public Optional<FinancialDecrease> update(
+    // UPDATE
+    public FinancialDecreaseDto update(
             Integer id,
-            FinancialDecrease updated) {
+            FinancialDecreaseDto dto
+    ) {
+        FinancialDecrease entity = repository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Decrease not found")
+                );
 
-        return repository.findById(id).flatMap(existing -> {
+        // 🔒 NIE ruszamy title, farmerId, type
+        if (dto.getAmount() != null) {
+            entity.setAmount(dto.getAmount());
+        }
 
-            if (updated.getFarmer() != null &&
-                    updated.getFarmer().getId() != null) {
-
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getFinancialDecreaseType() != null &&
-                    updated.getFinancialDecreaseType().getId() != null) {
-
-                if (!typeRepository.existsById(updated.getFinancialDecreaseType().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFinancialDecreaseType(updated.getFinancialDecreaseType());
-            }
-
-            existing.setTitle(updated.getTitle());
-            existing.setAmount(updated.getAmount());
-
-            return Optional.of(repository.save(existing));
-        });
+        return mapToDto(repository.save(entity));
     }
 
+    // DELETE
     public void delete(Integer id) {
         repository.deleteById(id);
     }
 
-    public List<FinancialDecrease> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    // GET BY FARMER + SEASON
+    public List<FinancialDecreaseDto> getByFarmerAndSeason(
+            Integer farmerId,
+            Integer seasonYear
+    ) {
+        return repository
+                .findByFarmerIdAndType_SeasonYear(
+                        farmerId,
+                        seasonYear
+                )
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+    public List<FinancialDecreaseDto> getByFarmerSeasonAndType(
+            Integer farmerId,
+            Integer seasonYear,
+            Integer typeId
+    ) {
+        return repository
+                .findByFarmerIdAndType_IdAndType_SeasonYear(
+                        farmerId,
+                        typeId,
+                        seasonYear
+                )
+                .stream()
+                .map(this::mapToDto)
+                .toList();
     }
 
-    public List<FinancialDecrease> getByType(Integer typeId) {
-        return repository.findByFinancialDecreaseTypeId(typeId);
+
+
+    // ----------------------
+    // MAPPING
+    // ----------------------
+    private FinancialDecreaseDto mapToDto(
+            FinancialDecrease entity
+    ) {
+        FinancialDecreaseDto dto = new FinancialDecreaseDto();
+        dto.setId(entity.getId());
+        dto.setFarmerId(entity.getFarmerId());
+        dto.setTypeId(entity.getType().getId());
+        dto.setTypeName(entity.getType().getName());
+        dto.setTitle(entity.getTitle());
+        dto.setAmount(entity.getAmount());
+        return dto;
     }
 }

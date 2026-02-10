@@ -1,60 +1,54 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+
+
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.FinancialDecreaseType;
+import pl.farmapp.backend.dto.FinancialDecreaseTypeDto;
 import pl.farmapp.backend.service.FinancialDecreaseTypeService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/financial-decrease-types")
+@RequestMapping("/api/financial/decrease-types")
 public class FinancialDecreaseTypeController {
 
     private final FinancialDecreaseTypeService service;
 
-    public FinancialDecreaseTypeController(FinancialDecreaseTypeService service) {
+    public FinancialDecreaseTypeController(
+            FinancialDecreaseTypeService service
+    ) {
         this.service = service;
     }
 
-    @GetMapping
-    public List<FinancialDecreaseType> getAll() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FinancialDecreaseType> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    // CREATE
     @PostMapping
-    public ResponseEntity<FinancialDecreaseType> create(
-            @RequestBody FinancialDecreaseType type) {
-        return service.create(type)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public FinancialDecreaseTypeDto create(
+            @RequestBody FinancialDecreaseTypeDto dto
+    ) {
+        return service.create(dto);
     }
 
+    // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<FinancialDecreaseType> update(
+    public FinancialDecreaseTypeDto update(
             @PathVariable Integer id,
-            @RequestBody FinancialDecreaseType type) {
-        return service.update(id, type)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+            @RequestBody FinancialDecreaseTypeDto dto
+    ) {
+        return service.update(id, dto);
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<FinancialDecreaseType> getByFarmer(
-            @PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
+    // GET BY FARMER + SEASON
+    @GetMapping
+    public List<FinancialDecreaseTypeDto> getByFarmerAndSeason(
+            @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear
+    ) {
+        return service.getByFarmerAndSeason(farmerId, seasonYear);
     }
 }

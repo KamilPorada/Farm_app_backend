@@ -1,71 +1,87 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FinancialIncreaseTypeDto;
 import pl.farmapp.backend.entity.FinancialIncreaseType;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.FinancialIncreaseTypeRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FinancialIncreaseTypeService {
 
     private final FinancialIncreaseTypeRepository repository;
-    private final FarmerRepository farmerRepository;
 
     public FinancialIncreaseTypeService(
-            FinancialIncreaseTypeRepository repository,
-            FarmerRepository farmerRepository) {
+            FinancialIncreaseTypeRepository repository
+    ) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
     }
 
-    public List<FinancialIncreaseType> getAll() {
-        return repository.findAll();
-    }
+    // CREATE
+    public FinancialIncreaseTypeDto create(FinancialIncreaseTypeDto dto) {
 
-    public Optional<FinancialIncreaseType> getById(Integer id) {
-        return repository.findById(id);
-    }
+        boolean exists = repository.existsByFarmerIdAndNameAndSeasonYear(
+                dto.getFarmerId(),
+                dto.getName(),
+                dto.getSeasonYear()
+        );
 
-    public Optional<FinancialIncreaseType> create(FinancialIncreaseType type) {
-
-        if (type.getFarmer() == null ||
-                type.getFarmer().getId() == null ||
-                !farmerRepository.existsById(type.getFarmer().getId())) {
-            return Optional.empty();
+        if (exists) {
+            throw new IllegalStateException(
+                    "Financial increase type already exists for this season"
+            );
         }
 
-        return Optional.of(repository.save(type));
+        FinancialIncreaseType entity = new FinancialIncreaseType();
+        entity.setFarmerId(dto.getFarmerId());
+        entity.setName(dto.getName());
+        entity.setSeasonYear(dto.getSeasonYear());
+
+        return mapToDto(repository.save(entity));
     }
 
-    public Optional<FinancialIncreaseType> update(
+    // UPDATE
+    public FinancialIncreaseTypeDto update(
             Integer id,
-            FinancialIncreaseType updated) {
+            FinancialIncreaseTypeDto dto
+    ) {
+        FinancialIncreaseType entity = repository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Type not found")
+                );
 
-        return repository.findById(id).flatMap(existing -> {
+        entity.setName(dto.getName());
 
-            if (updated.getFarmer() != null &&
-                    updated.getFarmer().getId() != null) {
-
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            existing.setName(updated.getName());
-
-            return Optional.of(repository.save(existing));
-        });
+        return mapToDto(repository.save(entity));
     }
 
+    // DELETE
     public void delete(Integer id) {
         repository.deleteById(id);
     }
 
-    public List<FinancialIncreaseType> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    // GET BY FARMER + SEASON
+    public List<FinancialIncreaseTypeDto> getByFarmerAndSeason(
+            Integer farmerId,
+            Integer seasonYear
+    ) {
+        return repository
+                .findByFarmerIdAndSeasonYear(farmerId, seasonYear)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    // MAPPING
+    private FinancialIncreaseTypeDto mapToDto(
+            FinancialIncreaseType entity
+    ) {
+        FinancialIncreaseTypeDto dto = new FinancialIncreaseTypeDto();
+        dto.setId(entity.getId());
+        dto.setFarmerId(entity.getFarmerId());
+        dto.setName(entity.getName());
+        dto.setSeasonYear(entity.getSeasonYear());
+        return dto;
     }
 }

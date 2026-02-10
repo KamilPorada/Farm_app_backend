@@ -1,27 +1,10 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
+public class FinancialDecreaseTypeDto {
 
-@Entity
-@Table(
-        name = "financial_decrease_type",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = {"farmer_id", "name", "season_year"}
-        )
-)
-public class FinancialDecreaseType {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(name = "season_year", nullable = false)
     private Integer seasonYear;
 
     public Integer getId() {

@@ -3,22 +3,26 @@ package pl.farmapp.backend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "financial_increase_type")
+@Table(
+        name = "financial_increase_type",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"farmer_id", "name", "season_year"}
+        )
+)
 public class FinancialIncreaseType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    @Column(name = "farmer_id", nullable = false)
+    private Integer farmerId;
 
+    @Column(nullable = false)
     private String name;
 
-    public FinancialIncreaseType() {
-    }
-
+    @Column(name = "season_year", nullable = false)
+    private Integer seasonYear;
 
     public Integer getId() {
         return id;
@@ -28,12 +32,12 @@ public class FinancialIncreaseType {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
     public String getName() {
@@ -42,5 +46,13 @@ public class FinancialIncreaseType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getSeasonYear() {
+        return seasonYear;
+    }
+
+    public void setSeasonYear(Integer seasonYear) {
+        this.seasonYear = seasonYear;
     }
 }
