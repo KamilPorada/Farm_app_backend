@@ -1,88 +1,72 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.HarvestDto;
 import pl.farmapp.backend.entity.Harvest;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.HarvestRepository;
-import pl.farmapp.backend.repository.VarietySeasonRepository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HarvestService {
 
-    private final HarvestRepository repository;
-    private final FarmerRepository farmerRepository;
-    private final VarietySeasonRepository varietySeasonRepository;
+    private final HarvestRepository harvestRepository;
 
-    public HarvestService(
-            HarvestRepository repository,
-            FarmerRepository farmerRepository,
-            VarietySeasonRepository varietySeasonRepository) {
-        this.repository = repository;
-        this.farmerRepository = farmerRepository;
-        this.varietySeasonRepository = varietySeasonRepository;
+    public HarvestService(HarvestRepository harvestRepository) {
+        this.harvestRepository = harvestRepository;
     }
 
-    public List<Harvest> getAll() {
-        return repository.findAll();
+    public HarvestDto create(Integer farmerId, HarvestDto dto) {
+
+        Harvest harvest = new Harvest();
+        harvest.setFarmerId(farmerId);
+        harvest.setVarietySeasonId(dto.getVarietySeasonId());
+        harvest.setHarvestDate(dto.getHarvestDate());
+        harvest.setBoxCount(dto.getBoxCount());
+
+        Harvest saved = harvestRepository.save(harvest);
+
+        return mapToDto(saved);
     }
 
-    public Optional<Harvest> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public HarvestDto update(Integer id, HarvestDto dto) {
 
-    public Optional<Harvest> create(Harvest harvest) {
+        Harvest harvest = harvestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Harvest not found"));
 
-        if (harvest.getFarmer() == null
-                || harvest.getFarmer().getId() == null
-                || !farmerRepository.existsById(harvest.getFarmer().getId())) {
-            return Optional.empty();
-        }
+        harvest.setVarietySeasonId(dto.getVarietySeasonId());
+        harvest.setHarvestDate(dto.getHarvestDate());
+        harvest.setBoxCount(dto.getBoxCount());
 
-        if (harvest.getVarietySeason() == null
-                || harvest.getVarietySeason().getId() == null
-                || !varietySeasonRepository.existsById(harvest.getVarietySeason().getId())) {
-            return Optional.empty();
-        }
+        Harvest updated = harvestRepository.save(harvest);
 
-        return Optional.of(repository.save(harvest));
-    }
-
-    public Optional<Harvest> update(Integer id, Harvest updated) {
-        return repository.findById(id).flatMap(existing -> {
-
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getVarietySeason() != null && updated.getVarietySeason().getId() != null) {
-                if (!varietySeasonRepository.existsById(updated.getVarietySeason().getId())) {
-                    return Optional.empty();
-                }
-                existing.setVarietySeason(updated.getVarietySeason());
-            }
-
-            existing.setHarvestDate(updated.getHarvestDate());
-            existing.setBoxCount(updated.getBoxCount());
-
-            return Optional.of(repository.save(existing));
-        });
+        return mapToDto(updated);
     }
 
     public void delete(Integer id) {
-        repository.deleteById(id);
+        harvestRepository.deleteById(id);
     }
 
-    public List<Harvest> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
-    }
+    public List<HarvestDto> getByFarmerAndYear(Integer farmerId, Integer year) {
 
-    public List<Harvest> getByVarietySeason(Integer varietySeasonId) {
-        return repository.findByVarietySeasonId(varietySeasonId);
+        return harvestRepository
+                .findByFarmerId(farmerId)
+                .stream()
+                .filter(h -> h.getHarvestDate() != null
+                        && h.getHarvestDate().getYear() == year)
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+    private HarvestDto mapToDto(Harvest harvest) {
+
+        HarvestDto dto = new HarvestDto();
+        dto.setId(harvest.getId());
+        dto.setVarietySeasonId(harvest.getVarietySeasonId());
+        dto.setHarvestDate(harvest.getHarvestDate());
+        dto.setBoxCount(harvest.getBoxCount());
+
+        return dto;
     }
 }

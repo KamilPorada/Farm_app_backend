@@ -1,27 +1,13 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "harvest")
-public class Harvest {
+public class HarvestDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
-    private Integer farmerId;
-
-    @Column(name = "variety_season_id", nullable = false)
     private Integer varietySeasonId;
-
-    @Column(name = "harvest_date", nullable = false)
     private LocalDate harvestDate;
-
-    @Column(name = "box_count", nullable = false, precision = 19, scale = 4)
     private BigDecimal boxCount;
 
     public Integer getId() {
@@ -30,14 +16,6 @@ public class Harvest {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getFarmerId() {
-        return farmerId;
-    }
-
-    public void setFarmerId(Integer farmerId) {
-        this.farmerId = farmerId;
     }
 
     public Integer getVarietySeasonId() {
