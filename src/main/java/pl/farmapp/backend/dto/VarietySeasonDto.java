@@ -1,38 +1,22 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "variety_season")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class VarietySeason {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class VarietySeasonDto {
+
     private Integer id;
-
-    @Column(name = "season_year", nullable = false)
     private Integer seasonYear;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(name = "tunnel_count", nullable = false)
     private BigDecimal tunnelCount;
 
-    @Column
     private String color;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
 
     public Integer getId() {
         return id;
@@ -72,14 +56,6 @@ public class VarietySeason {
 
     public void setColor(String color) {
         this.color = color;
-    }
-
-    public Farmer getFarmer() {
-        return farmer;
-    }
-
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
     }
 
 

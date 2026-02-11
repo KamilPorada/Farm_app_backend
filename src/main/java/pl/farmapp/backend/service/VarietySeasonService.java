@@ -1,70 +1,82 @@
 package pl.farmapp.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.VarietySeasonDto;
+import pl.farmapp.backend.entity.Farmer;
 import pl.farmapp.backend.entity.VarietySeason;
 import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.VarietySeasonRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class VarietySeasonService {
 
-    private final VarietySeasonRepository repository;
+    private final VarietySeasonRepository varietySeasonRepository;
     private final FarmerRepository farmerRepository;
 
-    public VarietySeasonService(
-            VarietySeasonRepository repository,
-            FarmerRepository farmerRepository) {
-        this.repository = repository;
+    public VarietySeasonService(VarietySeasonRepository varietySeasonRepository, FarmerRepository farmerRepository) {
+        this.varietySeasonRepository = varietySeasonRepository;
         this.farmerRepository = farmerRepository;
     }
 
-    public List<VarietySeason> getAll() {
-        return repository.findAll();
+    public VarietySeasonDto create(Integer farmerId, VarietySeasonDto dto) {
+
+        Farmer farmer = farmerRepository.findById(farmerId)
+                .orElseThrow(() -> new RuntimeException("Farmer not found"));
+
+        VarietySeason variety = new VarietySeason();
+        variety.setFarmer(farmer);
+        variety.setSeasonYear(dto.getSeasonYear());
+        variety.setName(dto.getName());
+        variety.setTunnelCount(dto.getTunnelCount());
+        variety.setColor(dto.getColor());
+
+        VarietySeason saved = varietySeasonRepository.save(variety);
+
+        return mapToDto(saved);
     }
 
-    public Optional<VarietySeason> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public VarietySeasonDto update(Integer id, VarietySeasonDto dto) {
 
-    public Optional<VarietySeason> create(VarietySeason varietySeason) {
-        if (varietySeason.getFarmer() == null
-                || varietySeason.getFarmer().getId() == null
-                || !farmerRepository.existsById(varietySeason.getFarmer().getId())) {
-            return Optional.empty();
-        }
-        return Optional.of(repository.save(varietySeason));
-    }
+        VarietySeason variety = varietySeasonRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Variety not found"));
 
-    public Optional<VarietySeason> update(Integer id, VarietySeason updated) {
-        return repository.findById(id).flatMap(existing -> {
+        variety.setName(dto.getName());
+        variety.setSeasonYear(dto.getSeasonYear());
+        variety.setTunnelCount(dto.getTunnelCount());
+        variety.setColor(dto.getColor());
 
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
+        VarietySeason updated = varietySeasonRepository.save(variety);
 
-            existing.setName(updated.getName());
-            existing.setTunnelCount(updated.getTunnelCount());
-            existing.setSeasonYear(updated.getSeasonYear());
-
-            return Optional.of(repository.save(existing));
-        });
+        return mapToDto(updated);
     }
 
     public void delete(Integer id) {
-        repository.deleteById(id);
+        varietySeasonRepository.deleteById(id);
     }
 
-    public List<VarietySeason> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    public List<VarietySeasonDto> getByFarmerAndSeason(Integer farmerId, Integer seasonYear) {
+        return varietySeasonRepository
+                .findByFarmerIdAndSeasonYear(farmerId, seasonYear)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
-    public List<VarietySeason> getBySeasonYear(Integer seasonYear) {
-        return repository.findBySeasonYear(seasonYear);
+    private VarietySeasonDto mapToDto(VarietySeason variety) {
+
+        VarietySeasonDto dto = new VarietySeasonDto();
+        dto.setId(variety.getId());
+        dto.setSeasonYear(variety.getSeasonYear());
+        dto.setName(variety.getName());
+        dto.setTunnelCount(variety.getTunnelCount());
+        dto.setColor(variety.getColor());
+
+        return dto;
     }
+
 }

@@ -1,66 +1,49 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.VarietySeason;
+import pl.farmapp.backend.dto.VarietySeasonDto;
 import pl.farmapp.backend.service.VarietySeasonService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/variety-seasons")
+@RequestMapping("/api/varieties")
+@RequiredArgsConstructor
 public class VarietySeasonController {
 
-    private final VarietySeasonService service;
+    private final VarietySeasonService varietySeasonService;
 
-    public VarietySeasonController(VarietySeasonService service) {
-        this.service = service;
+    public VarietySeasonController(VarietySeasonService varietySeasonService) {
+        this.varietySeasonService = varietySeasonService;
     }
 
-    @GetMapping
-    public List<VarietySeason> getAll() {
-        return service.getAll();
-    }
+    @PostMapping("/{farmerId}")
+    public VarietySeasonDto create(
+            @PathVariable Integer farmerId,
+            @RequestBody VarietySeasonDto dto) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<VarietySeason> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<VarietySeason> create(
-            @RequestBody VarietySeason varietySeason) {
-        return service.create(varietySeason)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+        return varietySeasonService.create(farmerId, dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VarietySeason> update(
+    public VarietySeasonDto update(
             @PathVariable Integer id,
-            @RequestBody VarietySeason varietySeason) {
-        return service.update(id, varietySeason)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+            @RequestBody VarietySeasonDto dto) {
+
+        return varietySeasonService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+    public void delete(@PathVariable Integer id) {
+        varietySeasonService.delete(id);
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<VarietySeason> getByFarmer(
-            @PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
-    }
+    @GetMapping("/{farmerId}/{seasonYear}")
+    public List<VarietySeasonDto> getByFarmerAndSeason(
+            @PathVariable Integer farmerId,
+            @PathVariable Integer seasonYear) {
 
-    @GetMapping("/season/{year}")
-    public List<VarietySeason> getBySeason(
-            @PathVariable Integer year) {
-        return service.getBySeasonYear(year);
+        return varietySeasonService.getByFarmerAndSeason(farmerId, seasonYear);
     }
 }
