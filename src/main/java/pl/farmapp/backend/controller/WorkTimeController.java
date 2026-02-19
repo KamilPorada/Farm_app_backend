@@ -1,14 +1,16 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import pl.farmapp.backend.dto.WorkTimeDto;
 import pl.farmapp.backend.entity.WorkTime;
 import pl.farmapp.backend.service.WorkTimeService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/work-times")
+@RequestMapping("/api/work-time")
+@RequiredArgsConstructor
 public class WorkTimeController {
 
     private final WorkTimeService service;
@@ -17,47 +19,43 @@ public class WorkTimeController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<WorkTime> getAll() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<WorkTime> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    // ➜ create
     @PostMapping
-    public ResponseEntity<WorkTime> create(@RequestBody WorkTime workTime) {
-        return service.create(workTime)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public WorkTime create(@RequestBody WorkTimeDto dto) {
+        return service.create(dto);
     }
 
+    // ➜ update
     @PutMapping("/{id}")
-    public ResponseEntity<WorkTime> update(
-            @PathVariable Integer id,
-            @RequestBody WorkTime workTime) {
-        return service.update(id, workTime)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public WorkTime update(@PathVariable Integer id,
+                           @RequestBody WorkTimeDto dto) {
+        return service.update(id, dto);
     }
 
+    // ➜ delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<WorkTime> getByFarmer(@PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
-    }
-
+    // ➜ lista wpisów pracownika
     @GetMapping("/employee/{employeeId}")
     public List<WorkTime> getByEmployee(@PathVariable Integer employeeId) {
         return service.getByEmployee(employeeId);
     }
+
+    @PatchMapping("/{id}/hours")
+    public WorkTime updateHours(
+            @PathVariable Integer id,
+            @RequestBody WorkTimeDto dto) {
+        return service.updateHours(id, dto.getHoursWorked());
+    }
+
+    @PatchMapping("/{id}/amount")
+    public WorkTime updateAmount(
+            @PathVariable Integer id,
+            @RequestBody WorkTimeDto dto) {
+        return service.updateAmount(id, dto.getPaidAmount());
+    }
+
 }

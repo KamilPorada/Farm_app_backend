@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface WorkTimeRepository extends JpaRepository<WorkTime, Integer> {
 
-    List<WorkTime> findByFarmerId(Integer farmerId);
+    List<WorkTime> findByEmployeeIdOrderByWorkDateDesc(Integer employeeId);
 
-    List<WorkTime> findByEmployeeId(Integer employeeId);
 }

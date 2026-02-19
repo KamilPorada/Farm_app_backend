@@ -1,80 +1,86 @@
 package pl.farmapp.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.PesticideDto;
 import pl.farmapp.backend.entity.Pesticide;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.PesticideRepository;
-import pl.farmapp.backend.repository.PesticideTypeRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PesticideService {
 
     private final PesticideRepository repository;
-    private final FarmerRepository farmerRepository;
-    private final PesticideTypeRepository pesticideTypeRepository;
 
-    public PesticideService(PesticideRepository repository,
-                            FarmerRepository farmerRepository,
-                            PesticideTypeRepository pesticideTypeRepository) {
+    public PesticideService(PesticideRepository repository) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
-        this.pesticideTypeRepository = pesticideTypeRepository;
     }
 
-    public List<Pesticide> getAll() {
-        return repository.findAll();
+    public List<PesticideDto> getAll(Integer farmerId) {
+        return repository.findAllByFarmerId(farmerId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Pesticide> getById(Integer id) {
-        return repository.findById(id);
+    public List<PesticideDto> getByType(Integer farmerId, Integer typeId) {
+        return repository.findAllByFarmerIdAndPesticideTypeId(farmerId, typeId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Pesticide> create(Pesticide pesticide) {
-        if (pesticide.getFarmer() == null || pesticide.getFarmer().getId() == null
-                || !farmerRepository.existsById(pesticide.getFarmer().getId())) {
-            return Optional.empty();
+    public PesticideDto create(Integer farmerId, PesticideDto dto) {
+        Pesticide entity = new Pesticide();
+        entity.setFarmerId(farmerId);
+        entity.setPesticideTypeId(dto.getPesticideTypeId());
+        entity.setName(dto.getName());
+        entity.setIsLiquid(dto.getIsLiquid());
+        entity.setTargetPest(dto.getTargetPest());
+        entity.setCarenceDays(dto.getCarenceDays());
+
+        return mapToDto(repository.save(entity));
+    }
+
+    public PesticideDto update(Integer id, Integer farmerId, PesticideDto dto) {
+        Pesticide entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pesticide not found"));
+
+        if (!entity.getFarmerId().equals(farmerId)) {
+            throw new RuntimeException("Access denied");
         }
-        if (pesticide.getPesticideType() == null || pesticide.getPesticideType().getId() == null
-                || !pesticideTypeRepository.existsById(pesticide.getPesticideType().getId())) {
-            return Optional.empty();
+
+        entity.setPesticideTypeId(dto.getPesticideTypeId());
+        entity.setName(dto.getName());
+        entity.setIsLiquid(dto.getIsLiquid());
+        entity.setTargetPest(dto.getTargetPest());
+        entity.setCarenceDays(dto.getCarenceDays());
+
+        return mapToDto(repository.save(entity));
+    }
+
+    public void delete(Integer id, Integer farmerId) {
+        Pesticide entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pesticide not found"));
+
+        if (!entity.getFarmerId().equals(farmerId)) {
+            throw new RuntimeException("Access denied");
         }
-        return Optional.of(repository.save(pesticide));
+
+        repository.delete(entity);
     }
 
-    public Optional<Pesticide> update(Integer id, Pesticide updated) {
-        return repository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-            if (updated.getPesticideType() != null && updated.getPesticideType().getId() != null) {
-                if (!pesticideTypeRepository.existsById(updated.getPesticideType().getId())) {
-                    return Optional.empty();
-                }
-                existing.setPesticideType(updated.getPesticideType());
-            }
-            existing.setName(updated.getName());
-            existing.setIsLiquid(updated.getIsLiquid());
-            existing.setTargetPest(updated.getTargetPest());
-            existing.setCarenceDays(updated.getCarenceDays());
-            return Optional.of(repository.save(existing));
-        });
-    }
-
-    public void delete(Integer id) {
-        repository.deleteById(id);
-    }
-
-    public List<Pesticide> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
-    }
-
-    public List<Pesticide> getByPesticideType(Integer pesticideTypeId) {
-        return repository.findByPesticideTypeId(pesticideTypeId);
+    private PesticideDto mapToDto(Pesticide entity) {
+        PesticideDto dto = new PesticideDto();
+        dto.setId(entity.getId());
+        dto.setPesticideTypeId(entity.getPesticideTypeId());
+        dto.setName(entity.getName());
+        dto.setIsLiquid(entity.getIsLiquid());
+        dto.setTargetPest(entity.getTargetPest());
+        dto.setCarenceDays(entity.getCarenceDays());
+        return dto;
     }
 }

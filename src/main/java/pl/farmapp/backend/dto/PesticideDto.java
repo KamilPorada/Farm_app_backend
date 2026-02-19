@@ -1,35 +1,17 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "pesticide")
 @Getter
 @Setter
-public class Pesticide {
+public class PesticideDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
-    private Integer farmerId;
-
-    @Column(name = "pesticide_type_id", nullable = false)
     private Integer pesticideTypeId;
-
-    @Column(nullable = false, length = 255)
     private String name;
-
-    @Column(name = "is_liquid", nullable = false)
     private Boolean isLiquid;
-
-    @Column(name = "target_pest", nullable = false, length = 255)
     private String targetPest;
-
-    @Column(name = "carence_days", nullable = false)
     private Integer carenceDays;
 
     public Integer getId() {
@@ -38,14 +20,6 @@ public class Pesticide {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getFarmerId() {
-        return farmerId;
-    }
-
-    public void setFarmerId(Integer farmerId) {
-        this.farmerId = farmerId;
     }
 
     public Integer getPesticideTypeId() {

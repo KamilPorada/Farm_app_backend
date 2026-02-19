@@ -1,39 +1,15 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "work_time")
-public class WorkTime {
+public class WorkTimeDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @Column(name = "employee_id", nullable = false)
     private Integer employeeId;
-
-    @Column(name = "work_date", nullable = false)
     private LocalDate workDate;
-
-    @Column(name = "hours_worked", nullable = false, precision = 6, scale = 2)
     private BigDecimal hoursWorked;
-
-    @Column(name = "paid_amount", precision = 10, scale = 2)
     private BigDecimal paidAmount;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Integer getFarmerId() {
         return farmerId;

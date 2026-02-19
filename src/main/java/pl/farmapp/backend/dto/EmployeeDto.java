@@ -1,55 +1,18 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(
-        name = "employee",
-        uniqueConstraints = @UniqueConstraint(
-                name = "unique_employee_per_season",
-                columnNames = {"farmer_id", "season_year", "first_name", "last_name"}
-        )
-)
-public class Employee {
+public class EmployeeDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @Column(name = "first_name", nullable = false)
     private String firstName;
-
-    @Column(name = "last_name", nullable = false)
     private String lastName;
-
     private String nationality;
-
     private Integer age;
-
-    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal salary;
-
-    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
-
-    @Column(name = "finish_date")
-    private LocalDate finishDate;
-
-    @Column(name = "season_year", nullable = false)
     private Integer seasonYear;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Integer getFarmerId() {
         return farmerId;
@@ -105,14 +68,6 @@ public class Employee {
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
-    }
-
-    public LocalDate getFinishDate() {
-        return finishDate;
-    }
-
-    public void setFinishDate(LocalDate finishDate) {
-        this.finishDate = finishDate;
     }
 
     public Integer getSeasonYear() {

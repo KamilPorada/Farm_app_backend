@@ -1,58 +1,73 @@
 package pl.farmapp.backend.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.PesticideTypeDto;
 import pl.farmapp.backend.entity.PesticideType;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.PesticideTypeRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PesticideTypeService {
 
     private final PesticideTypeRepository repository;
-    private final FarmerRepository farmerRepository;
 
-    public PesticideTypeService(PesticideTypeRepository repository, FarmerRepository farmerRepository) {
+    public PesticideTypeService(PesticideTypeRepository repository) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
     }
 
-    public List<PesticideType> getAll() {
-        return repository.findAll();
+    public List<PesticideTypeDto> getAll(Integer farmerId) {
+        return repository.findByFarmerIdOrderByNameAsc(farmerId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<PesticideType> getById(Integer id) {
-        return repository.findById(id);
-    }
-
-    public Optional<PesticideType> create(PesticideType pesticideType) {
-        if (pesticideType.getFarmer() == null || pesticideType.getFarmer().getId() == null
-                || !farmerRepository.existsById(pesticideType.getFarmer().getId())) {
-            return Optional.empty();
+    public PesticideTypeDto create(Integer farmerId, PesticideTypeDto dto) {
+        if (repository.existsByFarmerIdAndNameIgnoreCase(farmerId, dto.getName())) {
+            throw new IllegalArgumentException("Typ o tej nazwie już istnieje");
         }
-        return Optional.of(repository.save(pesticideType));
+
+        PesticideType type = new PesticideType();
+        type.setFarmerId(farmerId);
+        type.setName(dto.getName());
+        type.setIcon(dto.getIcon());
+
+        return toDto(repository.save(type));
     }
 
-    public Optional<PesticideType> update(Integer id, PesticideType updated) {
-        return repository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-            existing.setName(updated.getName());
-            return Optional.of(repository.save(existing));
-        });
+    public PesticideTypeDto update(Integer id, Integer farmerId, PesticideTypeDto dto) {
+        PesticideType type = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Typ nie istnieje"));
+
+        if (!type.getFarmerId().equals(farmerId)) {
+            throw new SecurityException("Brak dostępu");
+        }
+
+        type.setName(dto.getName());
+        type.setIcon(dto.getIcon());
+
+        return toDto(repository.save(type));
     }
 
-    public void delete(Integer id) {
-        repository.deleteById(id);
+    public void delete(Integer id, Integer farmerId) {
+        PesticideType type = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Typ nie istnieje"));
+
+        if (!type.getFarmerId().equals(farmerId)) {
+            throw new SecurityException("Brak dostępu");
+        }
+
+        repository.delete(type);
     }
 
-    public List<PesticideType> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    private PesticideTypeDto toDto(PesticideType type) {
+        PesticideTypeDto dto = new PesticideTypeDto();
+        dto.setId(type.getId());
+        dto.setName(type.getName());
+        dto.setIcon(type.getIcon());
+        return dto;
     }
 }

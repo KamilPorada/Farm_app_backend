@@ -1,14 +1,15 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.PesticideType;
+import pl.farmapp.backend.dto.PesticideTypeDto;
 import pl.farmapp.backend.service.PesticideTypeService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/pesticide-types")
+@RequiredArgsConstructor
 public class PesticideTypeController {
 
     private final PesticideTypeService service;
@@ -17,40 +18,34 @@ public class PesticideTypeController {
         this.service = service;
     }
 
+    // 🔹 pobierz wszystkie dla farmera
     @GetMapping
-    public List<PesticideType> getAll() {
-        return service.getAll();
+    public List<PesticideTypeDto> getAll(@RequestParam Integer farmerId) {
+        return service.getAll(farmerId);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PesticideType> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    // 🔹 utwórz
     @PostMapping
-    public ResponseEntity<PesticideType> create(@RequestBody PesticideType pesticideType) {
-        return service.create(pesticideType)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public PesticideTypeDto create(
+            @RequestParam Integer farmerId,
+            @RequestBody PesticideTypeDto dto) {
+        return service.create(farmerId, dto);
     }
 
+    // 🔹 edytuj
     @PutMapping("/{id}")
-    public ResponseEntity<PesticideType> update(@PathVariable Integer id, @RequestBody PesticideType pesticideType) {
-        return service.update(id, pesticideType)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public PesticideTypeDto update(
+            @PathVariable Integer id,
+            @RequestParam Integer farmerId,
+            @RequestBody PesticideTypeDto dto) {
+        return service.update(id, farmerId, dto);
     }
 
+    // 🔹 usuń
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/farmer/{farmerId}")
-    public List<PesticideType> getByFarmer(@PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
+    public void delete(
+            @PathVariable Integer id,
+            @RequestParam Integer farmerId) {
+        service.delete(id, farmerId);
     }
 }

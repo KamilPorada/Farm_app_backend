@@ -1,85 +1,68 @@
 package pl.farmapp.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.WorkTimeDto;
 import pl.farmapp.backend.entity.WorkTime;
-import pl.farmapp.backend.repository.EmployeeRepository;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.WorkTimeRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class WorkTimeService {
 
     private final WorkTimeRepository repository;
-    private final FarmerRepository farmerRepository;
-    private final EmployeeRepository employeeRepository;
 
-    public WorkTimeService(
-            WorkTimeRepository repository,
-            FarmerRepository farmerRepository,
-            EmployeeRepository employeeRepository) {
+    public WorkTimeService(WorkTimeRepository repository) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
-        this.employeeRepository = employeeRepository;
     }
 
-    public List<WorkTime> getAll() {
-        return repository.findAll();
+    public WorkTime create(WorkTimeDto dto) {
+        WorkTime workTime = new WorkTime();
+        map(dto, workTime);
+        return repository.save(workTime);
     }
 
-    public Optional<WorkTime> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public WorkTime update(Integer id, WorkTimeDto dto) {
+        WorkTime workTime = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Work time entry not found"));
 
-    public Optional<WorkTime> create(WorkTime workTime) {
-        if (workTime.getFarmer() == null || workTime.getFarmer().getId() == null
-                || !farmerRepository.existsById(workTime.getFarmer().getId())) {
-            return Optional.empty();
-        }
-
-        if (workTime.getEmployee() == null || workTime.getEmployee().getId() == null
-                || !employeeRepository.existsById(workTime.getEmployee().getId())) {
-            return Optional.empty();
-        }
-
-        return Optional.of(repository.save(workTime));
-    }
-
-    public Optional<WorkTime> update(Integer id, WorkTime updated) {
-        return repository.findById(id).flatMap(existing -> {
-
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-
-            if (updated.getEmployee() != null && updated.getEmployee().getId() != null) {
-                if (!employeeRepository.existsById(updated.getEmployee().getId())) {
-                    return Optional.empty();
-                }
-                existing.setEmployee(updated.getEmployee());
-            }
-
-            existing.setWorkDate(updated.getWorkDate());
-            existing.setHoursWorked(updated.getHoursWorked());
-
-            return Optional.of(repository.save(existing));
-        });
+        map(dto, workTime);
+        return repository.save(workTime);
     }
 
     public void delete(Integer id) {
         repository.deleteById(id);
     }
 
-    public List<WorkTime> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    public List<WorkTime> getByEmployee(Integer employeeId) {
+        return repository.findByEmployeeIdOrderByWorkDateDesc(employeeId);
     }
 
-    public List<WorkTime> getByEmployee(Integer employeeId) {
-        return repository.findByEmployeeId(employeeId);
+    public WorkTime updateHours(Integer id, BigDecimal hours) {
+        WorkTime entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        entity.setHoursWorked(hours);
+        return repository.save(entity);
+    }
+
+    public WorkTime updateAmount(Integer id, BigDecimal amount) {
+        WorkTime entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        entity.setPaidAmount(amount);
+        return repository.save(entity);
+    }
+
+
+    private void map(WorkTimeDto dto, WorkTime entity) {
+        entity.setFarmerId(dto.getFarmerId());
+        entity.setEmployeeId(dto.getEmployeeId());
+        entity.setWorkDate(dto.getWorkDate());
+        entity.setHoursWorked(dto.getHoursWorked());
+        entity.setPaidAmount(dto.getPaidAmount());
     }
 }
