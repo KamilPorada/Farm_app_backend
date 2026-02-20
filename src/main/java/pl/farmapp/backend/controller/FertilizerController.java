@@ -3,6 +3,7 @@ package pl.farmapp.backend.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pl.farmapp.backend.dto.FertilizerDto;
+import pl.farmapp.backend.dto.FertilizerWithPriceDto;
 import pl.farmapp.backend.entity.Fertilizer;
 import pl.farmapp.backend.service.FertilizerService;
 
@@ -43,5 +44,14 @@ public class FertilizerController {
     @GetMapping("/farmer/{farmerId}")
     public List<Fertilizer> getByFarmer(@PathVariable Integer farmerId) {
         return service.getByFarmer(farmerId);
+    }
+
+    // 🔥 NAWOZY + CENY SEZONOWE
+    @GetMapping("/farmer/{farmerId}/season/{seasonYear}")
+    public List<FertilizerWithPriceDto> getBySeason(
+            @PathVariable Integer farmerId,
+            @PathVariable Integer seasonYear
+    ) {
+        return service.getByFarmerAndSeason(farmerId, seasonYear);
     }
 }

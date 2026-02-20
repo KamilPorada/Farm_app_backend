@@ -6,16 +6,29 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class FertilizerDto {
+@NoArgsConstructor
+public class FertilizerWithPriceDto {
 
+    public FertilizerWithPriceDto(Integer id, String name, String form, BigDecimal price) {
+        this.id = id;
+        this.name = name;
+        this.form = form;
+        this.price = price;
+    }
+
+    private Integer id;
     private String name;
     private String form;
-
-    // sezonowe
     private BigDecimal price;
-    private Integer seasonYear;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -39,13 +52,5 @@ public class FertilizerDto {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public Integer getSeasonYear() {
-        return seasonYear;
-    }
-
-    public void setSeasonYear(Integer seasonYear) {
-        this.seasonYear = seasonYear;
     }
 }
