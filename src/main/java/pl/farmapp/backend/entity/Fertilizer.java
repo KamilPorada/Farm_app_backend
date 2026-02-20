@@ -1,27 +1,34 @@
 package pl.farmapp.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
-@Table(name = "fertilizer")
+@Table(
+        name = "fertilizer",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "fertilizer_farmer_name_unique", columnNames = {"farmer_id", "name"})
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Fertilizer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private Farmer farmer;
+    @Column(name = "farmer_id", nullable = false)
+    private Integer farmerId;
 
+    @Column(nullable = false, length = 255)
     private String name;
 
-    private Boolean isLiquid;
-
-    public Fertilizer() {
-    }
-
-    // ===== GETTERY I SETTERY =====
+    @Column(nullable = false, length = 30)
+    private String form;
 
     public Integer getId() {
         return id;
@@ -31,12 +38,12 @@ public class Fertilizer {
         this.id = id;
     }
 
-    public Farmer getFarmer() {
-        return farmer;
+    public Integer getFarmerId() {
+        return farmerId;
     }
 
-    public void setFarmer(Farmer farmer) {
-        this.farmer = farmer;
+    public void setFarmerId(Integer farmerId) {
+        this.farmerId = farmerId;
     }
 
     public String getName() {
@@ -47,11 +54,11 @@ public class Fertilizer {
         this.name = name;
     }
 
-    public Boolean getIsLiquid() {
-        return isLiquid;
+    public String getForm() {
+        return form;
     }
 
-    public void setIsLiquid(Boolean isLiquid) {
-        this.isLiquid = isLiquid;
+    public void setForm(String form) {
+        this.form = form;
     }
 }

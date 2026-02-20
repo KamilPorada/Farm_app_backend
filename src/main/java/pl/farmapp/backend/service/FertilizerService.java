@@ -1,52 +1,40 @@
 package pl.farmapp.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.FertilizerDto;
 import pl.farmapp.backend.entity.Fertilizer;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.FertilizerRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FertilizerService {
 
     private final FertilizerRepository repository;
-    private final FarmerRepository farmerRepository;
 
-    public FertilizerService(FertilizerRepository repository, FarmerRepository farmerRepository) {
+    public FertilizerService(FertilizerRepository repository) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
     }
 
-    public List<Fertilizer> getAll() {
-        return repository.findAll();
+    public Fertilizer create(Integer farmerId, FertilizerDto dto) {
+        Fertilizer fertilizer = new Fertilizer();
+        fertilizer.setFarmerId(farmerId);
+        fertilizer.setName(dto.getName());
+        fertilizer.setForm(dto.getForm());
+
+        return repository.save(fertilizer);
     }
 
-    public Optional<Fertilizer> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public Fertilizer update(Integer id, FertilizerDto dto) {
+        Fertilizer fertilizer = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Fertilizer not found"));
 
-    public Optional<Fertilizer> create(Fertilizer fertilizer) {
-        if (fertilizer.getFarmer() == null || fertilizer.getFarmer().getId() == null
-                || !farmerRepository.existsById(fertilizer.getFarmer().getId())) {
-            return Optional.empty();
-        }
-        return Optional.of(repository.save(fertilizer));
-    }
+        fertilizer.setName(dto.getName());
+        fertilizer.setForm(dto.getForm());
 
-    public Optional<Fertilizer> update(Integer id, Fertilizer updated) {
-        return repository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-            existing.setName(updated.getName());
-            existing.setIsLiquid(updated.getIsLiquid());
-            return Optional.of(repository.save(existing));
-        });
+        return repository.save(fertilizer);
     }
 
     public void delete(Integer id) {
