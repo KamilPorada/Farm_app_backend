@@ -1,44 +1,25 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "treatment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Treatment {
+public class TreatmentDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @Column(name = "pesticide_id", nullable = false)
     private Integer pesticideId;
-
-    @Column(name = "treatment_date", nullable = false)
     private LocalDate treatmentDate;
-
-    @Column(name = "treatment_time", nullable = false)
     private LocalTime treatmentTime;
-
-    @Column(name = "pesticide_dose", nullable = false)
     private BigDecimal pesticideDose;
-
-    @Column(name = "liquid_volume", nullable = false)
     private BigDecimal liquidVolume;
-
-    @Column(name = "tunnel_count")
     private Integer tunnelCount;
 
     public Integer getId() {

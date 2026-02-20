@@ -1,81 +1,87 @@
 package pl.farmapp.backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.TreatmentDto;
 import pl.farmapp.backend.entity.Treatment;
-import pl.farmapp.backend.repository.FarmerRepository;
-import pl.farmapp.backend.repository.PesticideRepository;
 import pl.farmapp.backend.repository.TreatmentRepository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TreatmentService {
 
     private final TreatmentRepository repository;
-    private final FarmerRepository farmerRepository;
-    private final PesticideRepository pesticideRepository;
 
-    public TreatmentService(TreatmentRepository repository,
-                            FarmerRepository farmerRepository,
-                            PesticideRepository pesticideRepository) {
+    public TreatmentService(TreatmentRepository repository) {
         this.repository = repository;
-        this.farmerRepository = farmerRepository;
-        this.pesticideRepository = pesticideRepository;
     }
 
-    public List<Treatment> getAll() {
-        return repository.findAll();
+    public TreatmentDto create(TreatmentDto dto) {
+        Treatment saved = repository.save(mapToEntity(dto));
+        return mapToDto(saved);
     }
 
-    public Optional<Treatment> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public TreatmentDto update(Integer id, TreatmentDto dto) {
+        Treatment treatment = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Treatment not found"));
 
-    public Optional<Treatment> create(Treatment treatment) {
-        if (treatment.getFarmer() == null || treatment.getFarmer().getId() == null
-                || !farmerRepository.existsById(treatment.getFarmer().getId())) {
-            return Optional.empty();
-        }
-        if (treatment.getPesticide() == null || treatment.getPesticide().getId() == null
-                || !pesticideRepository.existsById(treatment.getPesticide().getId())) {
-            return Optional.empty();
-        }
-        return Optional.of(repository.save(treatment));
-    }
+        treatment.setFarmerId(dto.getFarmerId());
+        treatment.setPesticideId(dto.getPesticideId());
+        treatment.setTreatmentDate(dto.getTreatmentDate());
+        treatment.setTreatmentTime(dto.getTreatmentTime());
+        treatment.setPesticideDose(dto.getPesticideDose());
+        treatment.setLiquidVolume(dto.getLiquidVolume());
+        treatment.setTunnelCount(dto.getTunnelCount());
 
-    public Optional<Treatment> update(Integer id, Treatment updated) {
-        return repository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-            if (updated.getPesticide() != null && updated.getPesticide().getId() != null) {
-                if (!pesticideRepository.existsById(updated.getPesticide().getId())) {
-                    return Optional.empty();
-                }
-                existing.setPesticide(updated.getPesticide());
-            }
-            existing.setTreatmentDate(updated.getTreatmentDate());
-            existing.setTreatmentTime(updated.getTreatmentTime());
-            existing.setPesticideDose(updated.getPesticideDose());
-            existing.setLiquidVolume(updated.getLiquidVolume());
-            existing.setTunnelCount(updated.getTunnelCount());
-            return Optional.of(repository.save(existing));
-        });
+        Treatment updated = repository.save(treatment);
+        return mapToDto(updated);
     }
 
     public void delete(Integer id) {
         repository.deleteById(id);
     }
 
-    public List<Treatment> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    public List<TreatmentDto> getByFarmerAndYear(Integer farmerId, Integer year) {
+
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        return repository
+                .findAllByFarmerIdAndTreatmentDateBetween(farmerId, start, end)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
     }
 
-    public List<Treatment> getByPesticide(Integer pesticideId) {
-        return repository.findByPesticideId(pesticideId);
+
+    private Treatment mapToEntity(TreatmentDto dto) {
+        Treatment t = new Treatment();
+        t.setId(dto.getId());
+        t.setFarmerId(dto.getFarmerId());
+        t.setPesticideId(dto.getPesticideId());
+        t.setTreatmentDate(dto.getTreatmentDate());
+        t.setTreatmentTime(dto.getTreatmentTime());
+        t.setPesticideDose(dto.getPesticideDose());
+        t.setLiquidVolume(dto.getLiquidVolume());
+        t.setTunnelCount(dto.getTunnelCount());
+        return t;
     }
+
+
+    private TreatmentDto mapToDto(Treatment treatment) {
+        TreatmentDto dto = new TreatmentDto();
+        dto.setId(treatment.getId());
+        dto.setFarmerId(treatment.getFarmerId());
+        dto.setPesticideId(treatment.getPesticideId());
+        dto.setTreatmentDate(treatment.getTreatmentDate());
+        dto.setTreatmentTime(treatment.getTreatmentTime());
+        dto.setPesticideDose(treatment.getPesticideDose());
+        dto.setLiquidVolume(treatment.getLiquidVolume());
+        dto.setTunnelCount(treatment.getTunnelCount());
+        return dto;
+    }
+
 }
