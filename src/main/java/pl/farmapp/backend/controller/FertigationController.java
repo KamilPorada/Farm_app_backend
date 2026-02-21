@@ -1,8 +1,7 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.Fertigation;
+import pl.farmapp.backend.dto.FertigationDto;
 import pl.farmapp.backend.service.FertigationService;
 
 import java.util.List;
@@ -11,51 +10,49 @@ import java.util.List;
 @RequestMapping("/api/fertigations")
 public class FertigationController {
 
-    private final FertigationService service;
+    private final FertigationService fertigationService;
 
-    public FertigationController(FertigationService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<Fertigation> getAll() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Fertigation> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public FertigationController(FertigationService fertigationService) {
+        this.fertigationService = fertigationService;
     }
 
     @PostMapping
-    public ResponseEntity<Fertigation> create(@RequestBody Fertigation fertigation) {
-        return service.create(fertigation)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public FertigationDto create(
+            @RequestHeader("farmerId") Integer farmerId,
+            @RequestBody FertigationDto dto
+    ) {
+        return fertigationService.create(farmerId, dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Fertigation> update(@PathVariable Integer id, @RequestBody Fertigation fertigation) {
-        return service.update(id, fertigation)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public FertigationDto update(
+            @PathVariable Integer id,
+            @RequestHeader("farmerId") Integer farmerId,
+            @RequestBody FertigationDto dto
+    ) {
+        return fertigationService.update(id, farmerId, dto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+    public void delete(
+            @PathVariable Integer id,
+            @RequestHeader("farmerId") Integer farmerId
+    ) {
+        fertigationService.delete(id, farmerId);
     }
 
-    @GetMapping("/farmer/{farmerId}")
-    public List<Fertigation> getByFarmer(@PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
+    @GetMapping
+    public List<FertigationDto> getByFarmer(
+            @RequestHeader("farmerId") Integer farmerId
+    ) {
+        return fertigationService.getByFarmer(farmerId);
     }
 
-    @GetMapping("/fertilizer/{fertilizerId}")
-    public List<Fertigation> getByFertilizer(@PathVariable Integer fertilizerId) {
-        return service.getByFertilizer(fertilizerId);
+    @GetMapping("/season/{year}")
+    public List<FertigationDto> getBySeason(
+            @PathVariable Integer year,
+            @RequestHeader("farmerId") Integer farmerId
+    ) {
+        return fertigationService.getBySeason(farmerId, year);
     }
 }

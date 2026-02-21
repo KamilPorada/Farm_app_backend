@@ -1,37 +1,21 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "fertigation")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Fertigation {
+public class FertigationDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
-    private Integer farmerId;
-
-    @Column(name = "fertilizer_id", nullable = false)
     private Integer fertilizerId;
-
-    @Column(name = "fertigation_date", nullable = false)
     private LocalDate fertigationDate;
-
-    @Column(nullable = false)
     private BigDecimal dose;
-
-    @Column(name = "tunnel_count", nullable = false)
     private Integer tunnelCount;
 
     public Integer getId() {
@@ -40,14 +24,6 @@ public class Fertigation {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getFarmerId() {
-        return farmerId;
-    }
-
-    public void setFarmerId(Integer farmerId) {
-        this.farmerId = farmerId;
     }
 
     public Integer getFertilizerId() {
