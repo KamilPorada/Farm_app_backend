@@ -1,29 +1,16 @@
-package pl.farmapp.backend.entity;
+package pl.farmapp.backend.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "note")
-public class Note {
+public class NoteDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "farmer_id", nullable = false)
     private Integer farmerId;
-
-    @Column(nullable = false, length = 255)
     private String title;
-
-    @Column(nullable = false, columnDefinition = "text")
     private String content;
-
-    @Column(name = "note_date", nullable = false)
     private LocalDate noteDate;
 
-    public Note() {}
+    public NoteDto() {}
 
     public Integer getId() {
         return id;

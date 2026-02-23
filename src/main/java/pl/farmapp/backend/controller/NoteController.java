@@ -1,8 +1,7 @@
 package pl.farmapp.backend.controller;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.farmapp.backend.entity.Note;
+import pl.farmapp.backend.dto.NoteDto;
 import pl.farmapp.backend.service.NoteService;
 
 import java.util.List;
@@ -11,46 +10,37 @@ import java.util.List;
 @RequestMapping("/api/notes")
 public class NoteController {
 
-    private final NoteService service;
+    private final NoteService noteService;
 
-    public NoteController(NoteService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<Note> getAll() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Note> getById(@PathVariable Integer id) {
-        return service.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public NoteController(NoteService noteService) {
+        this.noteService = noteService;
     }
 
     @PostMapping
-    public ResponseEntity<Note> create(@RequestBody Note note) {
-        return service.create(note)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public NoteDto create(@RequestBody NoteDto dto) {
+        return noteService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Note> update(@PathVariable Integer id, @RequestBody Note note) {
-        return service.update(id, note)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public NoteDto update(@PathVariable Integer id, @RequestBody NoteDto dto) {
+        return noteService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+    public void delete(@PathVariable Integer id) {
+        noteService.delete(id);
     }
 
     @GetMapping("/farmer/{farmerId}")
-    public List<Note> getByFarmer(@PathVariable Integer farmerId) {
-        return service.getByFarmer(farmerId);
+    public List<NoteDto> getAllByFarmer(@PathVariable Integer farmerId) {
+        return noteService.getAllByFarmer(farmerId);
+    }
+
+    @GetMapping("/farmer/{farmerId}/year/{year}")
+    public List<NoteDto> getByFarmerAndYear(
+            @PathVariable Integer farmerId,
+            @PathVariable int year
+    ) {
+        return noteService.getByFarmerAndYear(farmerId, year);
     }
 }

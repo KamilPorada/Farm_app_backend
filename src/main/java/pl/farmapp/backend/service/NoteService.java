@@ -1,60 +1,79 @@
 package pl.farmapp.backend.service;
 
 import org.springframework.stereotype.Service;
+import pl.farmapp.backend.dto.NoteDto;
 import pl.farmapp.backend.entity.Note;
-import pl.farmapp.backend.repository.FarmerRepository;
 import pl.farmapp.backend.repository.NoteRepository;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class NoteService {
 
-    private final NoteRepository repository;
-    private final FarmerRepository farmerRepository;
+    private final NoteRepository noteRepository;
 
-    public NoteService(NoteRepository repository, FarmerRepository farmerRepository) {
-        this.repository = repository;
-        this.farmerRepository = farmerRepository;
+    public NoteService(NoteRepository noteRepository) {
+        this.noteRepository = noteRepository;
     }
 
-    public List<Note> getAll() {
-        return repository.findAll();
+    public NoteDto create(NoteDto dto) {
+        Note note = mapToEntity(dto);
+        return mapToDto(noteRepository.save(note));
     }
 
-    public Optional<Note> getById(Integer id) {
-        return repository.findById(id);
-    }
+    public NoteDto update(Integer id, NoteDto dto) {
+        Note note = noteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Note not found"));
 
-    public Optional<Note> create(Note note) {
-        if (note.getFarmer() == null || note.getFarmer().getId() == null
-                || !farmerRepository.existsById(note.getFarmer().getId())) {
-            return Optional.empty();
-        }
-        return Optional.of(repository.save(note));
-    }
+        note.setTitle(dto.getTitle());
+        note.setContent(dto.getContent());
+        note.setNoteDate(dto.getNoteDate());
 
-    public Optional<Note> update(Integer id, Note updated) {
-        return repository.findById(id).flatMap(existing -> {
-            if (updated.getFarmer() != null && updated.getFarmer().getId() != null) {
-                if (!farmerRepository.existsById(updated.getFarmer().getId())) {
-                    return Optional.empty();
-                }
-                existing.setFarmer(updated.getFarmer());
-            }
-            existing.setTitle(updated.getTitle());
-            existing.setContent(updated.getContent());
-            existing.setNoteDate(updated.getNoteDate());
-            return Optional.of(repository.save(existing));
-        });
+        return mapToDto(noteRepository.save(note));
     }
 
     public void delete(Integer id) {
-        repository.deleteById(id);
+        noteRepository.deleteById(id);
     }
 
-    public List<Note> getByFarmer(Integer farmerId) {
-        return repository.findByFarmerId(farmerId);
+    public List<NoteDto> getAllByFarmer(Integer farmerId) {
+        return noteRepository.findByFarmerId(farmerId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<NoteDto> getByFarmerAndYear(Integer farmerId, int year) {
+
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        return noteRepository
+                .findByFarmerIdAndNoteDateBetween(farmerId, start, end)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private NoteDto mapToDto(Note note) {
+        NoteDto dto = new NoteDto();
+        dto.setId(note.getId());
+        dto.setFarmerId(note.getFarmerId());
+        dto.setTitle(note.getTitle());
+        dto.setContent(note.getContent());
+        dto.setNoteDate(note.getNoteDate());
+        return dto;
+    }
+
+    private Note mapToEntity(NoteDto dto) {
+        Note note = new Note();
+        note.setId(dto.getId());
+        note.setFarmerId(dto.getFarmerId());
+        note.setTitle(dto.getTitle());
+        note.setContent(dto.getContent());
+        note.setNoteDate(dto.getNoteDate());
+        return note;
     }
 }
