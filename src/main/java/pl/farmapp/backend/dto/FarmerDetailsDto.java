@@ -5,7 +5,7 @@ import java.util.List;
 
 public class FarmerDetailsDto {
 
-    public Long farmerId;
+    public Integer farmerId;
 
     public String voivodeship;
     public String district;

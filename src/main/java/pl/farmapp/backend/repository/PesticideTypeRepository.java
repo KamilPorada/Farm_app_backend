@@ -8,6 +8,7 @@ import java.util.List;
 public interface PesticideTypeRepository extends JpaRepository<PesticideType, Integer> {
 
     List<PesticideType> findByFarmerIdOrderByNameAsc(Integer farmerId);
+    List<PesticideType> findByFarmerId(Integer farmerId);
 
     boolean existsByFarmerIdAndNameIgnoreCase(Integer farmerId, String name);
 }

@@ -9,10 +9,10 @@ public class FarmerDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "farmer_id", nullable = false, unique = true)
-    private Long farmerId;
+    private Integer farmerId;
 
     @Column(nullable = false, length = 50)
     private String voivodeship;
@@ -35,11 +35,11 @@ public class FarmerDetails {
     @Column(columnDefinition = "TEXT")
     private String crops;
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public void setFarmerId(Long farmerId) {
+    public void setFarmerId(Integer farmerId) {
         this.farmerId = farmerId;
     }
 
@@ -71,11 +71,11 @@ public class FarmerDetails {
         this.crops = crops;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Long getFarmerId() {
+    public Integer getFarmerId() {
         return farmerId;
     }
 

@@ -13,6 +13,10 @@ public interface FinancialIncreaseRepository
             Integer seasonYear
     );
 
+    List<FinancialIncrease> findByFarmerId(
+            Integer farmerId
+    );
+
     List<FinancialIncrease> findByFarmerIdAndType_IdAndType_SeasonYear(
             Integer farmerId,
             Integer typeId,

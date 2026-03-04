@@ -27,6 +27,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Integer> {
             LocalDate to
     );
 
+    List<Expense> findByFarmerId(
+            Integer farmerId
+    );
+
     /* =======================
        SAFETY
     ======================= */

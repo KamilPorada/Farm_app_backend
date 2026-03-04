@@ -14,6 +14,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
             LocalDate endDate
     );
 
+    List<Invoice> findByFarmerId(
+            Integer farmerId
+    );
+
     List<Invoice> findByFarmerIdAndStatusAndInvoiceDateBetween(
             Integer farmerId,
             Boolean status,

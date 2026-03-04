@@ -15,7 +15,7 @@ public class FarmerDetailsController {
         this.service = service;
     }
     @GetMapping("/{farmerId}")
-    public ResponseEntity<FarmerDetailsDto> get(@PathVariable Long farmerId) {
+    public ResponseEntity<FarmerDetailsDto> get(@PathVariable Integer farmerId) {
         return service.getByFarmerId(farmerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -29,14 +29,14 @@ public class FarmerDetailsController {
 
     @PutMapping("/{farmerId}")
     public FarmerDetailsDto update(
-            @PathVariable Long farmerId,
+            @PathVariable Integer farmerId,
             @RequestBody FarmerDetailsDto dto
     ) {
         return service.update(farmerId, dto);
     }
 
     @DeleteMapping("/{farmerId}")
-    public void delete(@PathVariable Long farmerId) {
+    public void delete(@PathVariable Integer farmerId) {
         service.delete(farmerId);
     }
 }

@@ -17,7 +17,7 @@ public class FarmerDetailsService {
         this.repository = repository;
     }
 
-    public Optional<FarmerDetailsDto> getByFarmerId(Long farmerId) {
+    public Optional<FarmerDetailsDto> getByFarmerId(Integer farmerId) {
         return repository.findByFarmerId(farmerId)
                 .map(FarmerDetailsMapper::toDto);
     }
@@ -31,7 +31,7 @@ public class FarmerDetailsService {
         return FarmerDetailsMapper.toDto(saved);
     }
 
-    public FarmerDetailsDto update(Long farmerId, FarmerDetailsDto dto) {
+    public FarmerDetailsDto update(Integer farmerId, FarmerDetailsDto dto) {
         FarmerDetails entity = repository.findByFarmerId(farmerId)
                 .orElseThrow(() -> new RuntimeException("Farmer details not found"));
 
@@ -46,7 +46,7 @@ public class FarmerDetailsService {
         return FarmerDetailsMapper.toDto(repository.save(entity));
     }
 
-    public void delete(Long farmerId) {
+    public void delete(Integer farmerId) {
         FarmerDetails entity = repository.findByFarmerId(farmerId)
                 .orElseThrow(() -> new RuntimeException("Farmer details not found"));
         repository.delete(entity);

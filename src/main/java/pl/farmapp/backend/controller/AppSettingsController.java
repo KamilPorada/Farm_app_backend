@@ -22,7 +22,7 @@ public class AppSettingsController {
     public ResponseEntity<AppSettingsDto> getSettings(
             @PathVariable Long farmerId
     ) {
-        return service.getByFarmerId(farmerId)
+        return service.getByFarmerId(Math.toIntExact(farmerId))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -39,7 +39,7 @@ public class AppSettingsController {
     /* ===== UPDATE ===== */
     @PutMapping("/{farmerId}")
     public ResponseEntity<AppSettingsDto> updateSettings(
-            @PathVariable Long farmerId,
+            @PathVariable Integer farmerId,
             @RequestBody AppSettingsDto dto
     ) {
         return ResponseEntity.ok(service.update(farmerId, dto));

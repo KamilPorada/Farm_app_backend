@@ -5,9 +5,9 @@ import pl.farmapp.backend.entity.AppSettings;
 
 import java.util.Optional;
 
-public interface AppSettingsRepository extends JpaRepository<AppSettings, Long> {
+public interface AppSettingsRepository extends JpaRepository<AppSettings, Integer> {
 
-    Optional<AppSettings> findByFarmerId(Long farmerId);
+    Optional<AppSettings> findByFarmerId(Integer farmerId);
 
-    boolean existsByFarmerId(Long farmerId);
+    boolean existsByFarmerId(Integer farmerId);
 }

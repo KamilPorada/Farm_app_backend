@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 public class AppSettingsDto {
 
-    private Long farmerId;
+    private int farmerId;
 
     private String language;
     private String weightUnit;
@@ -24,11 +24,11 @@ public class AppSettingsDto {
 
     private Boolean notificationsEnabled;
 
-    public Long getFarmerId() {
+    public int getFarmerId() {
         return farmerId;
     }
 
-    public void setFarmerId(Long farmerId) {
+    public void setFarmerId(int farmerId) {
         this.farmerId = farmerId;
     }
 

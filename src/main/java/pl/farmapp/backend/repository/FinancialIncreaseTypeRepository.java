@@ -13,6 +13,10 @@ public interface FinancialIncreaseTypeRepository
             Integer seasonYear
     );
 
+    List<FinancialIncreaseType> findByFarmerId(
+            Integer farmerId
+    );
+
     boolean existsByFarmerIdAndNameAndSeasonYear(
             Integer farmerId,
             String name,

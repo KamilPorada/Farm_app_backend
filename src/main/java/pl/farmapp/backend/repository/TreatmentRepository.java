@@ -13,5 +13,8 @@ public interface TreatmentRepository extends JpaRepository<Treatment, Integer> {
             LocalDate start,
             LocalDate end
     );
+    List<Treatment> findByFarmerId(
+            Integer farmerId
+    );
 
 }

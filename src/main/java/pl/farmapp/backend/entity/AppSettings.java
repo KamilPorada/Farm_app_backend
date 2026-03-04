@@ -16,10 +16,10 @@ public class AppSettings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "farmer_id", nullable = false, unique = true)
-    private Long farmerId;
+    private Integer farmerId;
 
     // ===== PODSTAWOWE =====
     @Column(nullable = false)
@@ -46,19 +46,19 @@ public class AppSettings {
     @Column(name = "notifications_enabled", nullable = false)
     private Boolean notificationsEnabled;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getFarmerId() {
+    public Integer getFarmerId() {
         return farmerId;
     }
 
-    public void setFarmerId(Long farmerId) {
+    public void setFarmerId(Integer farmerId) {
         this.farmerId = farmerId;
     }
 

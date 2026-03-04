@@ -9,6 +9,7 @@ public interface ExpenseCategoryRepository
         extends JpaRepository<ExpenseCategory, Integer> {
 
     List<ExpenseCategory> findByFarmerIdOrderByNameAsc(Integer farmerId);
+    List<ExpenseCategory> findByFarmerId(Integer farmerId);
 
     boolean existsByFarmerIdAndNameIgnoreCase(Integer farmerId, String name);
 }

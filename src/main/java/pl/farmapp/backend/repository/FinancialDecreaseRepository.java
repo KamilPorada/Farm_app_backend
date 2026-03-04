@@ -12,6 +12,10 @@ public interface FinancialDecreaseRepository
             Integer farmerId,
             Integer seasonYear
     );
+    List<FinancialDecrease> findByFarmerId(
+            Integer farmerId
+    );
+
 
     List<FinancialDecrease> findByFarmerIdAndType_IdAndType_SeasonYear(
             Integer farmerId,

@@ -21,7 +21,7 @@ public class AppSettingsService {
     }
 
     /* ===== GET ===== */
-    public Optional<AppSettingsDto> getByFarmerId(Long farmerId) {
+    public Optional<AppSettingsDto> getByFarmerId(Integer farmerId) {
         return repository.findByFarmerId(farmerId)
                 .map(this::mapToDto);
     }
@@ -42,7 +42,7 @@ public class AppSettingsService {
 
     /* ===== UPDATE ===== */
     @Transactional
-    public AppSettingsDto update(Long farmerId, AppSettingsDto dto) {
+    public AppSettingsDto update(Integer farmerId, AppSettingsDto dto) {
         AppSettings settings = repository.findByFarmerId(farmerId)
                 .orElseThrow(() -> new RuntimeException("App settings not found"));
 

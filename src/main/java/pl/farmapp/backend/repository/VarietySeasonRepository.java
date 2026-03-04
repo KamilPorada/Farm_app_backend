@@ -9,4 +9,5 @@ import java.util.List;
 public interface VarietySeasonRepository extends JpaRepository<VarietySeason, Integer> {
 
     List<VarietySeason> findByFarmerIdAndSeasonYear(Integer farmerId, Integer seasonYear);
+    List<VarietySeason> findByFarmerId(Integer farmerId);
 }

@@ -8,6 +8,7 @@ import java.util.List;
 public interface PesticideRepository extends JpaRepository<Pesticide, Integer> {
 
     List<Pesticide> findAllByFarmerId(Integer farmerId);
+    List<Pesticide> findByFarmerId(Integer farmerId);
 
     List<Pesticide> findAllByFarmerIdAndPesticideTypeId(Integer farmerId, Integer pesticideTypeId);
 }

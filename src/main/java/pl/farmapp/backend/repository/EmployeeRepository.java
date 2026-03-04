@@ -8,4 +8,6 @@ import java.util.List;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
     List<Employee> findByFarmerIdAndSeasonYear(Integer farmerId, Integer seasonYear);
+    List<Employee> findByFarmerId(Integer farmerId);
+
 }
