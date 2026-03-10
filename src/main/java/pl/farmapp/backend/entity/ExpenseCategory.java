@@ -19,6 +19,9 @@ public class ExpenseCategory {
     @Column
     private String icon;
 
+    @Column(name = "production_cost", nullable = false)
+    private Boolean productionCost;
+
     public Integer getId() {
         return id;
     }
@@ -49,5 +52,13 @@ public class ExpenseCategory {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Boolean getProductionCost() {
+        return productionCost;
+    }
+
+    public void setProductionCost(Boolean productionCost) {
+        this.productionCost = productionCost;
     }
 }

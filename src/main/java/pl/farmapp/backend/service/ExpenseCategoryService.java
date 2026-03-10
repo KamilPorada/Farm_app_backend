@@ -34,6 +34,7 @@ public class ExpenseCategoryService {
         category.setFarmerId(farmerId);
         category.setName(dto.getName());
         category.setIcon(dto.getIcon());
+        category.setProductionCost(dto.getProductionCost());
 
         return toDto(repository.save(category));
     }
@@ -48,6 +49,7 @@ public class ExpenseCategoryService {
 
         category.setName(dto.getName());
         category.setIcon(dto.getIcon());
+        category.setProductionCost(dto.getProductionCost());
 
         return toDto(repository.save(category));
     }
@@ -68,6 +70,7 @@ public class ExpenseCategoryService {
         dto.setId(category.getId());
         dto.setName(category.getName());
         dto.setIcon(category.getIcon());
+        dto.setProductionCost(category.getProductionCost());
         return dto;
     }
 }

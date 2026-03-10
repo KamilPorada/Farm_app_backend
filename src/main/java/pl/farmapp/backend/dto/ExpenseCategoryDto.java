@@ -5,6 +5,7 @@ public class ExpenseCategoryDto {
     private Integer id;
     private String name;
     private String icon;
+    private Boolean productionCost;
 
     public Integer getId() {
         return id;
@@ -28,5 +29,13 @@ public class ExpenseCategoryDto {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public Boolean getProductionCost() {
+        return productionCost;
+    }
+
+    public void setProductionCost(Boolean productionCost) {
+        this.productionCost = productionCost;
     }
 }
