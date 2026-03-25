@@ -14,6 +14,7 @@ public class PointOfSaleDto {
     @NotBlank
     private String name;
 
+    private String shortName;
     @NotBlank
     private String address;
 
@@ -52,6 +53,13 @@ public class PointOfSaleDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getAddress() {

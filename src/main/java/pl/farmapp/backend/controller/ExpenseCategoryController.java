@@ -19,26 +19,29 @@ public class ExpenseCategoryController {
 
     @GetMapping
     public List<ExpenseCategoryDto> getAll(
-            @RequestParam Integer farmerId
+            @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear
     ) {
-        return service.getAll(farmerId);
+        return service.getAll(farmerId, seasonYear);
     }
 
     @PostMapping
     public ExpenseCategoryDto create(
             @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear,
             @RequestBody ExpenseCategoryDto dto
     ) {
-        return service.create(farmerId, dto);
+        return service.create(farmerId, seasonYear, dto);
     }
 
     @PutMapping("/{id}")
     public ExpenseCategoryDto update(
             @PathVariable Integer id,
             @RequestParam Integer farmerId,
+            @RequestParam Integer seasonYear,
             @RequestBody ExpenseCategoryDto dto
     ) {
-        return service.update(id, farmerId, dto);
+        return service.update(id, farmerId, seasonYear, dto);
     }
 
     @DeleteMapping("/{id}")

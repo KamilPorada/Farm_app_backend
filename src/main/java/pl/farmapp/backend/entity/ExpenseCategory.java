@@ -22,6 +22,9 @@ public class ExpenseCategory {
     @Column(name = "production_cost", nullable = false)
     private Boolean productionCost;
 
+    @Column(name = "season_year", nullable = false)
+    private Integer seasonYear;
+
     public Integer getId() {
         return id;
     }
@@ -60,5 +63,13 @@ public class ExpenseCategory {
 
     public void setProductionCost(Boolean productionCost) {
         this.productionCost = productionCost;
+    }
+
+    public Integer getSeasonYear() {
+        return seasonYear;
+    }
+
+    public void setSeasonYear(Integer seasonYear) {
+        this.seasonYear = seasonYear;
     }
 }

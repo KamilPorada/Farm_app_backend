@@ -18,20 +18,27 @@ public class ExpenseCategoryService {
         this.repository = repository;
     }
 
-    public List<ExpenseCategoryDto> getAll(Integer farmerId) {
-        return repository.findByFarmerIdOrderByNameAsc(farmerId)
+    public List<ExpenseCategoryDto> getAll(Integer farmerId, Integer seasonYear) {
+        return repository
+                .findByFarmerIdAndSeasonYearOrderByNameAsc(farmerId, seasonYear)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
-    public ExpenseCategoryDto create(Integer farmerId, ExpenseCategoryDto dto) {
-        if (repository.existsByFarmerIdAndNameIgnoreCase(farmerId, dto.getName())) {
+    public ExpenseCategoryDto create(Integer farmerId, Integer seasonYear, ExpenseCategoryDto dto) {
+
+        if (repository.existsByFarmerIdAndSeasonYearAndNameIgnoreCase(
+                farmerId,
+                seasonYear,
+                dto.getName()
+        )) {
             throw new IllegalArgumentException("Kategoria o tej nazwie już istnieje");
         }
 
         ExpenseCategory category = new ExpenseCategory();
         category.setFarmerId(farmerId);
+        category.setSeasonYear(seasonYear);
         category.setName(dto.getName());
         category.setIcon(dto.getIcon());
         category.setProductionCost(dto.getProductionCost());
@@ -39,7 +46,8 @@ public class ExpenseCategoryService {
         return toDto(repository.save(category));
     }
 
-    public ExpenseCategoryDto update(Integer id, Integer farmerId, ExpenseCategoryDto dto) {
+    public ExpenseCategoryDto update(Integer id, Integer farmerId, Integer seasonYear, ExpenseCategoryDto dto) {
+
         ExpenseCategory category = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Kategoria nie istnieje"));
 
@@ -47,6 +55,7 @@ public class ExpenseCategoryService {
             throw new SecurityException("Brak dostępu");
         }
 
+        category.setSeasonYear(seasonYear);
         category.setName(dto.getName());
         category.setIcon(dto.getIcon());
         category.setProductionCost(dto.getProductionCost());
@@ -55,6 +64,7 @@ public class ExpenseCategoryService {
     }
 
     public void delete(Integer id, Integer farmerId) {
+
         ExpenseCategory category = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Kategoria nie istnieje"));
 
@@ -71,6 +81,7 @@ public class ExpenseCategoryService {
         dto.setName(category.getName());
         dto.setIcon(category.getIcon());
         dto.setProductionCost(category.getProductionCost());
+        dto.setSeasonYear(category.getSeasonYear());
         return dto;
     }
 }

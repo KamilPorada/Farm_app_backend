@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface FarmerRepository extends JpaRepository<Farmer, Integer> {
 
     Optional<Farmer> findByExternalId(String externalId);
+    Optional<Farmer> findById(Integer farmerId);
     boolean existsByExternalId(String externalId);
 
 }

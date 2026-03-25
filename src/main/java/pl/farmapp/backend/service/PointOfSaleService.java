@@ -42,6 +42,7 @@ public class PointOfSaleService {
         PointOfSale pos = new PointOfSale();
         pos.setFarmer(farmer);
         pos.setName(dto.getName());
+        pos.setShortName(dto.getShortName());
         pos.setAddress(dto.getAddress());
         pos.setType(dto.getType());
         pos.setEmail(dto.getEmail());
@@ -57,6 +58,7 @@ public class PointOfSaleService {
         return pointOfSaleRepository.findById(id).map(existing -> {
 
             existing.setName(updated.getName());
+            existing.setShortName(updated.getShortName());
             existing.setAddress(updated.getAddress());
             existing.setType(updated.getType());
             existing.setEmail(updated.getEmail());

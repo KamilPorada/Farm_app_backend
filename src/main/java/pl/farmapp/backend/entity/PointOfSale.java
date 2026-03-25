@@ -22,6 +22,9 @@ public class PointOfSale {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "short_name", length = 100)
+    private String shortName;
+
     @NotBlank
     @Column(nullable = false)
     private String address;
@@ -71,6 +74,14 @@ public class PointOfSale {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
     public String getAddress() {

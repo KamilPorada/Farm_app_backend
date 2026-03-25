@@ -6,6 +6,7 @@ public class ExpenseCategoryDto {
     private String name;
     private String icon;
     private Boolean productionCost;
+    private Integer seasonYear;
 
     public Integer getId() {
         return id;
@@ -37,5 +38,13 @@ public class ExpenseCategoryDto {
 
     public void setProductionCost(Boolean productionCost) {
         this.productionCost = productionCost;
+    }
+
+    public Integer getSeasonYear() {
+        return seasonYear;
+    }
+
+    public void setSeasonYear(Integer seasonYear) {
+        this.seasonYear = seasonYear;
     }
 }
