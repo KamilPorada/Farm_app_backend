@@ -220,7 +220,7 @@ public class TitlePageGenerator {
             pageBreak.setPageBreak(true);
 
         } catch (Exception e) {
-            throw new RuntimeException("Błąd generowania strony tytułowej", e);
+            throw new RuntimeException("Błąd generowania strony tytułowej!", e);
         }
     }
 }
